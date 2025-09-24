@@ -19,8 +19,8 @@ The Pomodoro Technique is a time management method developed by Francesco Cirill
 - [x] **Todolist** - Add tasks to your to-do list and mark them as complete
 - [x] **Change time** - Change the work and break time to suit your needs
 - [x] **Customizable** - Change background
-- [..] **Contribute API** - Add your own API to the web
-- [..] **Sign in with Google** - Sign in with your Google account
+- [] **Contribute API** - Add your own API to the web
+- [] **Sign in with Google** - Sign in with your Google account
 
 ## 🛠️ Getting Started
 
