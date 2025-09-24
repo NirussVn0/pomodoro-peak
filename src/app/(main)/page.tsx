@@ -13,7 +13,7 @@ import { useAppServices } from '../../ui/context/app-context';
 
 export default function HomePage() {
   const [settingsOpen, setSettingsOpen] = useState(false);
-  const inputRef = useRef<HTMLInputElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null) as React.RefObject<HTMLInputElement>;
   const { templates } = useAppServices();
 
   useKeyboardShortcuts({
