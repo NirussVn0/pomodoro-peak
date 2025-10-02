@@ -6,6 +6,7 @@ import type { TimerMode } from '../../domain/entities/timer';
 import { TIMER_MODES } from '../../domain/entities/timer';
 import { useAppSelector, useAppServices } from '../context/app-context';
 import { useTimerController } from '../hooks/use-timer-controller';
+import { Button } from './primitives/button';
 
 const formatTime = (milliseconds: number): string => {
   const totalSeconds = Math.max(0, Math.ceil(milliseconds / 1000));
@@ -39,22 +40,23 @@ export const TimerCard = ({ onOpenSettings }: TimerCardProps) => {
   };
 
   return (
-    <section className="flex flex-1 flex-col gap-6 rounded-3xl border border-white/10 bg-white/5 p-6 shadow-xl backdrop-blur-xl">
+    <section className="flex flex-1 flex-col gap-6 rounded-lg border border-subtle bg-surface-card p-6 shadow-elevated backdrop-blur-xl">
       <header className="flex items-center justify-between">
         <div>
-          <p className="text-sm uppercase tracking-[0.2em] text-slate-400">Pomodoro</p>
-          <h2 className="text-2xl font-semibold text-white">Stay in the zone</h2>
+          <p className="text-sm uppercase tracking-[0.2em] text-muted">Pomodoro</p>
+          <h2 className="text-2xl font-semibold text-primary">Stay in the zone</h2>
         </div>
-        <button
+        <Button
           type="button"
+          variant="secondary"
+          size="sm"
+          icon={<Cog6ToothIcon className="h-5 w-5" />}
           onClick={onOpenSettings}
-          className="flex items-center gap-2 rounded-full border border-white/10 px-4 py-2 text-sm text-slate-200 transition hover:border-indigo-400/80 hover:text-white"
         >
-          <Cog6ToothIcon className="h-5 w-5" />
           Settings
-        </button>
+        </Button>
       </header>
-      <div className="flex items-center gap-2 rounded-full bg-white/10 p-2 text-sm text-slate-200">
+      <div className="flex items-center gap-2 rounded-lg border border-subtle bg-surface-overlay-soft p-2 text-sm text-muted">
         {TIMER_MODES.map((mode) => {
           const isActive = timerState.mode === mode;
           return (
@@ -63,10 +65,10 @@ export const TimerCard = ({ onOpenSettings }: TimerCardProps) => {
               type="button"
               onClick={() => handleModeChange(mode)}
               className={clsx(
-                'flex-1 rounded-full px-4 py-2 transition',
+                'flex-1 rounded-lg px-4 py-2 font-medium transition-colors',
                 isActive
-                  ? 'bg-gradient-to-r from-indigo-500 to-purple-500 text-white shadow-lg shadow-indigo-500/40'
-                  : 'text-slate-300 hover:text-white',
+                  ? 'bg-[color:var(--accent-solid)] text-[color:var(--text-inverse)] shadow-[var(--shadow-elevated)]'
+                  : 'text-muted hover:text-primary hover:bg-surface-card',
               )}
             >
               {MODE_LABELS[mode]}
@@ -75,49 +77,50 @@ export const TimerCard = ({ onOpenSettings }: TimerCardProps) => {
         })}
       </div>
       <div className="flex flex-col items-center justify-center gap-4 py-8 text-center">
-        <div className="text-[4.5rem] font-semibold leading-none tracking-tight text-white">
+        <div className="text-[4.5rem] font-semibold leading-none tracking-tight text-primary">
           {formatTime(timerState.remainingMs)}
         </div>
-        <p className="text-sm text-slate-400">
+        <p className="text-sm text-muted">
           {timerState.mode === 'focus' ? 'Deep work session' : 'Recharge moment'} · Today: {stats} sessions
         </p>
       </div>
       <div className="flex items-center justify-center gap-4">
-        <button
+        <Button
           type="button"
+          size="lg"
           onClick={() => (timerState.isRunning ? timer.pause() : timer.start())}
-          className="flex items-center gap-2 rounded-full bg-gradient-to-r from-indigo-500 to-purple-500 px-6 py-3 text-lg font-semibold text-white shadow-lg shadow-indigo-500/40 transition hover:from-indigo-400 hover:to-purple-400"
+          icon={timerState.isRunning ? <PauseIcon className="h-6 w-6" /> : <PlayIcon className="h-6 w-6" />}
         >
-          {timerState.isRunning ? <PauseIcon className="h-6 w-6" /> : <PlayIcon className="h-6 w-6" />}
           {timerState.isRunning ? 'Pause' : 'Start'}
-        </button>
-        <button
+        </Button>
+        <Button
           type="button"
+          variant="secondary"
+          size="md"
+          icon={<ArrowPathIcon className="h-5 w-5" />}
           onClick={() => timer.reset()}
-          className="flex items-center gap-2 rounded-full border border-white/10 px-5 py-3 text-sm text-slate-200 transition hover:border-indigo-400/80 hover:text-white"
         >
-          <ArrowPathIcon className="h-5 w-5" />
           Reset
-        </button>
+        </Button>
       </div>
-      <footer className="rounded-2xl border border-white/5 bg-slate-900/30 p-4 text-sm text-slate-300">
-        <p className="font-medium text-white">Quick glance</p>
+      <footer className="rounded-lg border border-subtle bg-surface-overlay-soft p-4 text-sm text-muted">
+        <p className="font-medium text-primary">Quick glance</p>
         <div className="mt-3 grid grid-cols-2 gap-4 text-xs">
           <div>
-            <p className="text-slate-400">Focus length</p>
-            <p className="text-white">{durations.focus} min</p>
+            <p className="text-muted">Focus length</p>
+            <p className="text-primary">{durations.focus} min</p>
           </div>
           <div>
-            <p className="text-slate-400">Break lengths</p>
-            <p className="text-white">{durations.shortBreak} / {durations.longBreak} min</p>
+            <p className="text-muted">Break lengths</p>
+            <p className="text-primary">{durations.shortBreak} / {durations.longBreak} min</p>
           </div>
           <div>
-            <p className="text-slate-400">Auto-start focus</p>
-            <p className="text-white">{preferences.autoStartFocus ? 'On' : 'Off'}</p>
+            <p className="text-muted">Auto-start focus</p>
+            <p className="text-primary">{preferences.autoStartFocus ? 'On' : 'Off'}</p>
           </div>
           <div>
-            <p className="text-slate-400">Auto-start breaks</p>
-            <p className="text-white">{preferences.autoStartBreaks ? 'On' : 'Off'}</p>
+            <p className="text-muted">Auto-start breaks</p>
+            <p className="text-primary">{preferences.autoStartBreaks ? 'On' : 'Off'}</p>
           </div>
         </div>
       </footer>

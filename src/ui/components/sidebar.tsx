@@ -23,8 +23,8 @@ export const Sidebar = ({ onOpenSettings }: SidebarProps) => {
   const pathname = usePathname();
 
   return (
-    <aside className="flex h-full w-20 flex-col items-center gap-4 bg-white/5 py-6 shadow-lg backdrop-blur-lg">
-      <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-indigo-500 to-purple-500 text-lg font-semibold text-white shadow-lg">
+    <aside className="flex h-full w-24 flex-col items-center gap-4 rounded-lg border border-subtle bg-surface-card py-6 shadow-elevated backdrop-blur-xl">
+      <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-[color:var(--accent-solid)] text-lg font-semibold text-[color:var(--text-inverse)] shadow-[var(--shadow-elevated)]">
         PP
       </div>
       <nav className="flex flex-1 flex-col items-center gap-3">
@@ -36,9 +36,9 @@ export const Sidebar = ({ onOpenSettings }: SidebarProps) => {
               key={item.href}
               href={item.href}
               className={clsx(
-                'group flex h-12 w-12 items-center justify-center rounded-full border border-white/10 text-slate-300 transition hover:border-indigo-400/70 hover:text-white',
+                'group flex h-12 w-12 items-center justify-center rounded-lg border border-subtle text-muted transition-colors hover:border-[color:var(--accent-ring)] hover:text-primary',
                 isActive &&
-                  'bg-gradient-to-br from-indigo-500/90 to-purple-500/90 text-white shadow-xl shadow-indigo-500/40',
+                  'border-[color:var(--accent-ring)] bg-[color:var(--accent-solid)] text-[color:var(--text-inverse)] shadow-[var(--shadow-elevated)]',
               )}
               aria-label={item.label}
             >
@@ -50,14 +50,14 @@ export const Sidebar = ({ onOpenSettings }: SidebarProps) => {
       <button
         type="button"
         onClick={onOpenSettings}
-        className="flex h-12 w-12 items-center justify-center rounded-full border border-white/10 text-slate-300 transition hover:border-indigo-400/70 hover:text-white"
+        className="flex h-12 w-12 items-center justify-center rounded-lg border border-subtle text-muted transition-colors hover:border-[color:var(--accent-ring)] hover:text-primary"
         aria-label="Open settings"
       >
         <Cog6ToothIcon className="h-6 w-6" />
       </button>
       <button
         type="button"
-        className="flex h-12 w-12 items-center justify-center rounded-full border border-white/10 text-slate-300 transition hover:border-indigo-400/70 hover:text-white"
+        className="flex h-12 w-12 items-center justify-center rounded-lg border border-subtle text-muted transition-colors hover:border-[color:var(--accent-ring)] hover:text-primary"
         aria-label="Profile"
       >
         <UserCircleIcon className="h-6 w-6" />

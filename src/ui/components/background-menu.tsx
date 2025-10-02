@@ -17,14 +17,15 @@ export const BackgroundMenu = () => {
             type="button"
             onClick={() => settings.updateBackground(preset)}
             className={clsx(
-              'h-9 w-9 rounded-full border border-white/10 transition',
-              isActive ? 'ring-2 ring-indigo-400' : 'opacity-60 hover:opacity-90',
+              'h-10 w-10 rounded-lg border border-subtle transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--accent-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-[color:var(--surface-page)]',
+              isActive ? 'border-[color:var(--accent-ring)] ring-2 ring-[color:var(--accent-ring)]' : 'opacity-70 hover:opacity-100',
             )}
             style={
               preset.kind === 'image'
                 ? {
                     backgroundImage: `url(${preset.value})`,
                     backgroundSize: 'cover',
+                    backgroundPosition: 'center',
                   }
                 : {
                     background: preset.value,

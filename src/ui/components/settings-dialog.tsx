@@ -4,6 +4,7 @@ import { Dialog, Transition } from '@headlessui/react';
 import { Fragment, useEffect, useMemo, useState } from 'react';
 import { clsx } from 'clsx';
 import { useAppSelector, useAppServices } from '../context/app-context';
+import { Button } from './primitives/button';
 import type { BackgroundKind } from '../../domain/value-objects/background';
 
 interface SettingsDialogProps {
@@ -63,7 +64,7 @@ export const SettingsDialog = ({ open, onClose }: SettingsDialogProps) => {
           leaveFrom="opacity-100"
           leaveTo="opacity-0"
         >
-          <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm" />
+          <div className="fixed inset-0 bg-black/40 backdrop-blur-sm dark:bg-black/60" />
         </Transition.Child>
         <div className="fixed inset-0 overflow-y-auto px-4 py-10">
           <div className="mx-auto max-w-3xl">
@@ -76,16 +77,16 @@ export const SettingsDialog = ({ open, onClose }: SettingsDialogProps) => {
               leaveFrom="opacity-100 translate-y-0"
               leaveTo="opacity-0 translate-y-3"
             >
-              <Dialog.Panel className="rounded-3xl border border-white/10 bg-slate-950/90 p-8 shadow-2xl">
-                <Dialog.Title className="text-2xl font-semibold text-white">Workspace settings</Dialog.Title>
-                <Dialog.Description className="mt-2 text-sm text-slate-400">
+              <Dialog.Panel className="rounded-lg border border-subtle bg-surface-card p-8 shadow-elevated backdrop-blur-xl">
+                <Dialog.Title className="text-2xl font-semibold text-primary">Workspace settings</Dialog.Title>
+                <Dialog.Description className="mt-2 text-sm text-muted">
                   Tailor focus durations, sounds, and ambience. All changes are saved automatically.
                 </Dialog.Description>
 
                 <section className="mt-6 grid gap-6 md:grid-cols-2">
-                  <div className="rounded-2xl border border-white/10 bg-white/5 p-5">
-                    <h3 className="text-sm font-semibold uppercase tracking-wide text-slate-300">Durations</h3>
-                    <div className="mt-4 space-y-3 text-sm text-slate-200">
+                  <div className="rounded-lg border border-subtle bg-surface-overlay-soft p-5">
+                    <h3 className="text-sm font-semibold uppercase tracking-wide text-muted">Durations</h3>
+                    <div className="mt-4 space-y-3 text-sm text-primary">
                       {(
                         [
                           { key: 'focus' as const, label: 'Focus (minutes)' },
@@ -107,15 +108,15 @@ export const SettingsDialog = ({ open, onClose }: SettingsDialogProps) => {
                                 [item.key]: nextValue,
                               });
                             }}
-                            className="w-20 rounded-lg border border-white/10 bg-slate-900/50 px-3 py-2 text-right text-sm text-white focus:outline-none"
+                            className="w-20 rounded-lg border border-subtle bg-surface-card px-3 py-2 text-right text-sm text-primary focus:outline-none focus:ring-2 focus:ring-[color:var(--accent-ring)]"
                           />
                         </label>
                       ))}
                     </div>
                   </div>
-                  <div className="rounded-2xl border border-white/10 bg-white/5 p-5">
-                    <h3 className="text-sm font-semibold uppercase tracking-wide text-slate-300">Automation & sounds</h3>
-                    <div className="mt-4 space-y-3 text-sm text-slate-200">
+                  <div className="rounded-lg border border-subtle bg-surface-overlay-soft p-5">
+                    <h3 className="text-sm font-semibold uppercase tracking-wide text-muted">Automation & sounds</h3>
+                    <div className="mt-4 space-y-3 text-sm text-primary">
                       <label className="flex items-center justify-between gap-3">
                         <span>Auto-start focus sessions</span>
                         <input
@@ -124,7 +125,7 @@ export const SettingsDialog = ({ open, onClose }: SettingsDialogProps) => {
                           onChange={(event) =>
                             timer.updatePreferences({ autoStartFocus: event.target.checked })
                           }
-                          className="h-4 w-4 rounded border-white/20 bg-transparent"
+                          className="h-4 w-4 rounded border-subtle bg-surface-card text-[color:var(--accent-solid)] focus:ring-[color:var(--accent-ring)]"
                         />
                       </label>
                       <label className="flex items-center justify-between gap-3">
@@ -135,7 +136,7 @@ export const SettingsDialog = ({ open, onClose }: SettingsDialogProps) => {
                           onChange={(event) =>
                             timer.updatePreferences({ autoStartBreaks: event.target.checked })
                           }
-                          className="h-4 w-4 rounded border-white/20 bg-transparent"
+                          className="h-4 w-4 rounded border-subtle bg-surface-card text-[color:var(--accent-solid)] focus:ring-[color:var(--accent-ring)]"
                         />
                       </label>
                       <label className="flex items-center justify-between gap-3">
@@ -144,7 +145,7 @@ export const SettingsDialog = ({ open, onClose }: SettingsDialogProps) => {
                           type="checkbox"
                           checked={preferences.tickSound}
                           onChange={(event) => timer.updatePreferences({ tickSound: event.target.checked })}
-                          className="h-4 w-4 rounded border-white/20 bg-transparent"
+                          className="h-4 w-4 rounded border-subtle bg-surface-card text-[color:var(--accent-solid)] focus:ring-[color:var(--accent-ring)]"
                         />
                       </label>
                       <label className="flex items-center justify-between gap-3">
@@ -153,7 +154,7 @@ export const SettingsDialog = ({ open, onClose }: SettingsDialogProps) => {
                           type="checkbox"
                           checked={preferences.alarmSound}
                           onChange={(event) => timer.updatePreferences({ alarmSound: event.target.checked })}
-                          className="h-4 w-4 rounded border-white/20 bg-transparent"
+                          className="h-4 w-4 rounded border-subtle bg-surface-card text-[color:var(--accent-solid)] focus:ring-[color:var(--accent-ring)]"
                         />
                       </label>
                       <label className="flex items-center justify-between gap-3">
@@ -166,7 +167,7 @@ export const SettingsDialog = ({ open, onClose }: SettingsDialogProps) => {
                               notification: { desktop: event.target.checked },
                             })
                           }
-                          className="h-4 w-4 rounded border-white/20 bg-transparent"
+                          className="h-4 w-4 rounded border-subtle bg-surface-card text-[color:var(--accent-solid)] focus:ring-[color:var(--accent-ring)]"
                         />
                       </label>
                       <label className="flex items-center justify-between gap-3">
@@ -179,14 +180,14 @@ export const SettingsDialog = ({ open, onClose }: SettingsDialogProps) => {
                               shortcuts: { enabled: event.target.checked },
                             })
                           }
-                          className="h-4 w-4 rounded border-white/20 bg-transparent"
+                          className="h-4 w-4 rounded border-subtle bg-surface-card text-[color:var(--accent-solid)] focus:ring-[color:var(--accent-ring)]"
                         />
                       </label>
                     </div>
                   </div>
-                  <div className="rounded-2xl border border-white/10 bg-white/5 p-5 md:col-span-2">
-                    <h3 className="text-sm font-semibold uppercase tracking-wide text-slate-300">Theme & background</h3>
-                    <div className="mt-4 flex flex-col gap-4 text-sm text-slate-200">
+                  <div className="rounded-lg border border-subtle bg-surface-overlay-soft p-5 md:col-span-2">
+                    <h3 className="text-sm font-semibold uppercase tracking-wide text-muted">Theme & background</h3>
+                    <div className="mt-4 flex flex-col gap-4 text-sm text-primary">
                       <div className="flex items-center gap-3">
                         <span>Theme</span>
                         <div className="flex gap-2">
@@ -196,27 +197,25 @@ export const SettingsDialog = ({ open, onClose }: SettingsDialogProps) => {
                               { value: 'light' as const, label: 'Day' },
                             ]
                           ).map((option) => (
-                            <button
+                            <Button
                               key={option.value}
                               type="button"
+                              size="sm"
+                              variant={appSettings.theme === option.value ? 'primary' : 'secondary'}
                               onClick={() => settings.updateSettings({ theme: option.value })}
-                              className={clsx(
-                                'rounded-full border border-white/10 px-4 py-2 text-xs transition',
-                                appSettings.theme === option.value
-                                  ? 'bg-gradient-to-r from-indigo-500 to-purple-500 text-white'
-                                  : 'text-slate-300 hover:border-indigo-400/80 hover:text-white',
-                              )}
                             >
                               {option.label}
-                            </button>
+                            </Button>
                           ))}
                         </div>
                       </div>
                       <div className="flex flex-wrap items-center gap-3">
                         {backgroundKinds.map((item) => (
-                          <button
+                          <Button
                             key={item.value}
                             type="button"
+                            size="sm"
+                            variant={appSettings.background.kind === item.value ? 'primary' : 'secondary'}
                             onClick={() =>
                               handleBackgroundChange(
                                 item.value,
@@ -225,25 +224,19 @@ export const SettingsDialog = ({ open, onClose }: SettingsDialogProps) => {
                                   : defaultBackgroundByKind[item.value],
                               )
                             }
-                            className={clsx(
-                              'rounded-full border border-white/10 px-4 py-2 text-xs transition',
-                              appSettings.background.kind === item.value
-                                ? 'bg-white/10 text-white'
-                                : 'text-slate-300 hover:border-indigo-400/80 hover:text-white',
-                            )}
                           >
                             {item.label}
-                          </button>
+                          </Button>
                         ))}
                       </div>
                       <label className="flex items-center gap-3">
-                        <span className="w-32 text-slate-300">Background value</span>
+                        <span className="w-32 text-muted">Background value</span>
                         {appSettings.background.kind === 'solid' ? (
                           <input
                             type="color"
                             value={backgroundValue}
                             onChange={(event) => handleBackgroundChange('solid', event.target.value)}
-                            className="h-10 w-20 rounded-lg border border-white/10 bg-transparent"
+                            className="h-10 w-20 rounded-lg border border-subtle bg-transparent"
                           />
                         ) : (
                           <input
@@ -255,12 +248,12 @@ export const SettingsDialog = ({ open, onClose }: SettingsDialogProps) => {
                                 ? 'Image URL'
                                 : 'CSS gradient (e.g. linear-gradient(...))'
                             }
-                            className="flex-1 rounded-lg border border-white/10 bg-slate-900/40 px-3 py-2 text-sm text-white placeholder:text-slate-500 focus:outline-none"
+                            className="flex-1 rounded-lg border border-subtle bg-surface-card px-3 py-2 text-sm text-primary placeholder:text-muted focus:outline-none focus:ring-2 focus:ring-[color:var(--accent-ring)]"
                           />
                         )}
                       </label>
                       <label className="flex items-center gap-3">
-                        <span className="w-32 text-slate-300">Blur</span>
+                        <span className="w-32 text-muted">Blur</span>
                         <input
                           type="range"
                           min={0}
@@ -274,10 +267,10 @@ export const SettingsDialog = ({ open, onClose }: SettingsDialogProps) => {
                           }
                           className="flex-1"
                         />
-                        <span className="w-12 text-right text-xs text-slate-400">{appSettings.background.blur}px</span>
+                        <span className="w-12 text-right text-xs text-muted">{appSettings.background.blur}px</span>
                       </label>
                       <label className="flex items-center gap-3">
-                        <span className="w-32 text-slate-300">Opacity</span>
+                        <span className="w-32 text-muted">Opacity</span>
                         <input
                           type="range"
                           min={0}
@@ -291,20 +284,16 @@ export const SettingsDialog = ({ open, onClose }: SettingsDialogProps) => {
                           }
                           className="flex-1"
                         />
-                        <span className="w-12 text-right text-xs text-slate-400">{sliderLabel}</span>
+                        <span className="w-12 text-right text-xs text-muted">{sliderLabel}</span>
                       </label>
                     </div>
                   </div>
                 </section>
 
                 <div className="mt-8 flex justify-end">
-                  <button
-                    type="button"
-                    onClick={onClose}
-                    className="rounded-full border border-white/10 px-4 py-2 text-sm text-slate-200 transition hover:border-indigo-400/80 hover:text-white"
-                  >
+                  <Button type="button" variant="secondary" size="sm" onClick={onClose}>
                     Close
-                  </button>
+                  </Button>
                 </div>
               </Dialog.Panel>
             </Transition.Child>

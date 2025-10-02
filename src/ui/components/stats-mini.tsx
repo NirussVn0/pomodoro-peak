@@ -7,16 +7,16 @@ export const StatsMini = () => {
   const tasks = useAppSelector((state) => state.tasks);
   const completed = tasks.filter((task) => task.completed).length;
   return (
-    <div className="rounded-2xl border border-white/10 bg-white/5 p-4 text-sm text-slate-300">
-      <p className="text-xs uppercase tracking-[0.3em] text-slate-500">Today</p>
+    <div className="rounded-lg border border-subtle bg-surface-overlay-soft p-4 text-sm text-primary">
+      <p className="text-xs uppercase tracking-[0.3em] text-muted">Today</p>
       <div className="mt-3 flex items-center justify-between">
         <div>
-          <p className="text-2xl font-semibold text-white">{stats.sessionsToday}</p>
-          <p className="text-xs text-slate-400">Focus sessions</p>
+          <p className="text-2xl font-semibold text-primary">{stats.sessionsToday}</p>
+          <p className="text-xs text-muted">Focus sessions</p>
         </div>
         <div>
-          <p className="text-2xl font-semibold text-white">{completed}</p>
-          <p className="text-xs text-slate-400">Tasks done</p>
+          <p className="text-2xl font-semibold text-primary">{completed}</p>
+          <p className="text-xs text-muted">Tasks done</p>
         </div>
       </div>
     </div>

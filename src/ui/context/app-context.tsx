@@ -27,7 +27,7 @@ export const AppProvider = ({ children }: { readonly children: ReactNode }) => {
 
   if (!services) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-[#0f1218] text-slate-200">
+      <div className="flex min-h-screen items-center justify-center bg-[color:var(--surface-page)] text-muted">
         <span className="animate-pulse text-sm tracking-wide">Preparing your focus space…</span>
       </div>
     );

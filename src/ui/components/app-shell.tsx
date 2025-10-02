@@ -13,11 +13,8 @@ export const AppShell = ({ children }: { readonly children: ReactNode }) => {
       return;
     }
     const root = document.documentElement;
-    if (theme === 'dark') {
-      root.classList.add('dark');
-    } else {
-      root.classList.remove('dark');
-    }
+    root.dataset.theme = theme;
+    root.classList.toggle('dark', theme === 'dark');
   }, [theme]);
 
   const wrapperStyle = useMemo<CSSProperties>(() => {
@@ -27,25 +24,32 @@ export const AppShell = ({ children }: { readonly children: ReactNode }) => {
     if (background.kind === 'gradient') {
       return { backgroundImage: background.value };
     }
-    return { backgroundImage: `url(${background.value})`, backgroundSize: 'cover', backgroundPosition: 'center' };
+    return {
+      backgroundImage: `url(${background.value})`,
+      backgroundSize: 'cover',
+      backgroundPosition: 'center',
+    };
   }, [background]);
 
   const overlayStyle = useMemo<CSSProperties>(() => {
     const blurValue = `blur(${background.blur}px)` as CSSProperties['backdropFilter'];
-    if (background.kind === 'image') {
-      return {
-        backdropFilter: blurValue,
-        backgroundColor: `rgba(15, 18, 24, ${Math.max(0, 1 - background.opacity)})`,
-      };
-    }
+    const baseColor = theme === 'dark' ? '15, 18, 24' : '243, 244, 255';
+    const intensity = (() => {
+      if (background.kind === 'image') {
+        return theme === 'dark'
+          ? Math.max(0.35, 1 - background.opacity)
+          : Math.max(0.25, 0.7 - background.opacity * 0.5);
+      }
+      return theme === 'dark' ? Math.max(0.2, 1 - background.opacity) : 0.18;
+    })();
     return {
       backdropFilter: blurValue,
-      backgroundColor: `rgba(15, 18, 24, ${1 - background.opacity})`,
+      backgroundColor: `rgba(${baseColor}, ${Math.min(0.95, intensity)})`,
     };
-  }, [background]);
+  }, [background, theme]);
 
   return (
-    <div className="min-h-screen w-full text-slate-900 transition-colors dark:text-slate-100">
+    <div className="min-h-screen w-full text-primary transition-colors">
       <div className="fixed inset-0 -z-20" style={wrapperStyle} />
       <div className="fixed inset-0 -z-10 transition duration-500" style={overlayStyle} />
       <div className="relative z-10 flex min-h-screen flex-col bg-transparent">

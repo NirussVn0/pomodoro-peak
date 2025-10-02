@@ -4,6 +4,7 @@ import { useState, type FormEvent, type RefObject } from 'react';
 import { PlusIcon, TagIcon, TrashIcon, Bars3Icon } from '@heroicons/react/24/outline';
 import { clsx } from 'clsx';
 import { useAppSelector, useAppServices } from '../context/app-context';
+import { Button } from './primitives/button';
 
 interface TodoCardProps {
   readonly onCreateTemplate: () => void;
@@ -39,40 +40,32 @@ export const TodoCard = ({ onCreateTemplate, inputRef }: TodoCardProps) => {
   };
 
   return (
-    <section className="flex flex-1 flex-col gap-6 rounded-3xl border border-white/10 bg-white/5 p-6 shadow-xl backdrop-blur-xl">
+    <section className="flex flex-1 flex-col gap-6 rounded-lg border border-subtle bg-surface-card p-6 shadow-elevated backdrop-blur-xl">
       <header className="flex items-center justify-between">
         <div>
-          <p className="text-sm uppercase tracking-[0.2em] text-slate-400">To-do</p>
-          <h2 className="text-2xl font-semibold text-white">Plan the day</h2>
+          <p className="text-sm uppercase tracking-[0.2em] text-muted">To-do</p>
+          <h2 className="text-2xl font-semibold text-primary">Plan the day</h2>
         </div>
-        <button
-          type="button"
-          onClick={onCreateTemplate}
-          className="rounded-full border border-white/10 px-4 py-2 text-sm text-slate-200 transition hover:border-indigo-400/80 hover:text-white"
-        >
+        <Button type="button" variant="secondary" size="sm" onClick={onCreateTemplate}>
           Save as template
-        </button>
+        </Button>
       </header>
-      <form onSubmit={handleSubmit} className="flex items-center gap-3 rounded-2xl border border-white/10 bg-slate-900/30 px-4 py-3">
+      <form onSubmit={handleSubmit} className="flex items-center gap-3 rounded-lg border border-subtle bg-surface-overlay-soft px-4 py-3">
         <input
           ref={inputRef}
-          className="flex-1 bg-transparent text-sm text-white placeholder:text-slate-500 focus:outline-none"
+          className="flex-1 bg-transparent text-sm text-primary placeholder:text-muted focus:outline-none"
           value={taskTitle}
           onChange={(event) => setTaskTitle(event.target.value)}
           placeholder="Quick add a task (N)"
           aria-label="Add task"
         />
-        <button
-          type="submit"
-          className="flex items-center gap-1 rounded-full bg-gradient-to-r from-indigo-500 to-purple-500 px-4 py-2 text-sm font-medium text-white shadow-md hover:from-indigo-400 hover:to-purple-400"
-        >
-          <PlusIcon className="h-4 w-4" />
+        <Button type="submit" size="sm" icon={<PlusIcon className="h-4 w-4" />}>
           Add
-        </button>
+        </Button>
       </form>
       <ul className="flex flex-col gap-3 overflow-y-auto pr-1">
         {tasks.length === 0 ? (
-          <li className="rounded-2xl border border-dashed border-white/10 bg-slate-900/20 px-4 py-8 text-center text-sm text-slate-400">
+          <li className="rounded-lg border border-dashed border-subtle bg-surface-overlay-soft px-4 py-8 text-center text-sm text-muted">
             No tasks yet. Add your first focus item!
           </li>
         ) : (
@@ -91,8 +84,8 @@ export const TodoCard = ({ onCreateTemplate, inputRef }: TodoCardProps) => {
                 handleDrop(task.id);
               }}
               className={clsx(
-                'group rounded-2xl border border-white/10 bg-slate-900/40 p-4 transition',
-                draggingId === task.id && 'border-indigo-400/70 bg-slate-900/70',
+                'group rounded-lg border border-subtle bg-surface-overlay-soft p-4 transition-colors',
+                draggingId === task.id && 'border-[color:var(--accent-ring)]',
               )}
             >
               <div className="flex items-start gap-3">
@@ -100,10 +93,10 @@ export const TodoCard = ({ onCreateTemplate, inputRef }: TodoCardProps) => {
                   type="button"
                   onClick={() => todo.toggleTask(task.id)}
                   className={clsx(
-                    'mt-1 flex h-5 w-5 items-center justify-center rounded-full border text-xs font-semibold transition',
+                    'mt-1 flex h-5 w-5 items-center justify-center rounded-md border text-xs font-semibold transition-colors',
                     task.completed
-                      ? 'border-indigo-400 bg-gradient-to-br from-indigo-500 to-purple-500 text-white'
-                      : 'border-white/20 text-slate-400 hover:border-indigo-400/70 hover:text-white',
+                      ? 'border-[color:var(--accent-ring)] bg-[color:var(--accent-solid)] text-[color:var(--text-inverse)]'
+                      : 'border-subtle text-muted hover:border-[color:var(--accent-ring)] hover:text-primary',
                   )}
                   aria-label={task.completed ? 'Mark incomplete' : 'Mark complete'}
                 >
@@ -114,17 +107,17 @@ export const TodoCard = ({ onCreateTemplate, inputRef }: TodoCardProps) => {
                     <input
                       value={task.title}
                       onChange={(event) => todo.updateTitle(task.id, event.target.value)}
-                      className="w-full bg-transparent text-base font-medium text-white focus:outline-none"
+                      className="w-full bg-transparent text-base font-medium text-primary focus:outline-none"
                     />
                     <button
                       type="button"
                       onClick={() => todo.removeTask(task.id)}
-                      className="hidden rounded-full border border-white/10 p-2 text-slate-400 transition hover:border-red-400/60 hover:text-red-300 group-hover:flex"
+                      className="hidden rounded-lg border border-transparent p-2 text-muted transition hover:border-red-300/50 hover:text-red-400 group-hover:flex"
                       aria-label="Delete task"
                     >
                       <TrashIcon className="h-4 w-4" />
                     </button>
-                    <span className="hidden cursor-grab text-slate-500 group-hover:block" aria-hidden>
+                    <span className="hidden cursor-grab text-muted group-hover:block" aria-hidden>
                       <Bars3Icon className="h-5 w-5" />
                     </span>
                   </div>
@@ -132,13 +125,13 @@ export const TodoCard = ({ onCreateTemplate, inputRef }: TodoCardProps) => {
                     {task.tags.map((tag) => (
                       <span
                         key={tag.id}
-                        className="flex items-center gap-2 rounded-full bg-indigo-500/20 px-3 py-1 text-xs text-indigo-200"
+                        className="flex items-center gap-2 rounded-lg border border-subtle bg-surface-card px-3 py-1 text-xs text-primary"
                       >
                         #{tag.label}
                         <button
                           type="button"
                           onClick={() => todo.removeTag(task.id, tag.id)}
-                          className="text-indigo-200/80 hover:text-white"
+                          className="text-muted transition hover:text-red-400"
                           aria-label={`Remove tag ${tag.label}`}
                         >
                           ×
@@ -153,7 +146,7 @@ export const TodoCard = ({ onCreateTemplate, inputRef }: TodoCardProps) => {
                           todo.addTag(task.id, value);
                         }
                       }}
-                      className="flex items-center gap-1 rounded-full border border-white/10 px-3 py-1 text-xs text-slate-300 transition hover:border-indigo-400/80 hover:text-white"
+                      className="flex items-center gap-1 rounded-lg border border-subtle px-3 py-1 text-xs text-muted transition hover:border-[color:var(--accent-ring)] hover:text-primary"
                     >
                       <TagIcon className="h-3 w-3" />
                       Tag
@@ -161,18 +154,18 @@ export const TodoCard = ({ onCreateTemplate, inputRef }: TodoCardProps) => {
                   </div>
                   <div className="mt-4 space-y-2">
                     {task.subtasks.map((subtask) => (
-                      <label key={subtask.id} className="flex items-center gap-2 text-sm text-slate-300">
+                      <label key={subtask.id} className="flex items-center gap-2 text-sm text-muted">
                         <input
                           type="checkbox"
                           checked={subtask.completed}
                           onChange={() => todo.toggleSubtask(task.id, subtask.id)}
-                          className="h-4 w-4 rounded border-white/20 bg-transparent"
+                          className="h-4 w-4 rounded border-subtle bg-surface-card text-[color:var(--accent-solid)] focus:ring-[color:var(--accent-ring)]"
                         />
-                        <span className={clsx(subtask.completed && 'line-through text-slate-500')}>{subtask.title}</span>
+                        <span className={clsx('text-primary', subtask.completed && 'line-through text-muted')}>{subtask.title}</span>
                         <button
                           type="button"
                           onClick={() => todo.removeSubtask(task.id, subtask.id)}
-                          className="ml-auto text-xs text-slate-400 hover:text-red-300"
+                          className="ml-auto text-xs text-muted hover:text-red-400"
                         >
                           Remove
                         </button>
@@ -181,7 +174,7 @@ export const TodoCard = ({ onCreateTemplate, inputRef }: TodoCardProps) => {
                     <button
                       type="button"
                       onClick={() => setExpandedTask((prev) => (prev === task.id ? null : task.id))}
-                      className="text-xs text-indigo-200 hover:text-white"
+                      className="text-xs text-muted hover:text-primary"
                     >
                       {expandedTask === task.id ? 'Hide subtasks' : 'Add subtask'}
                     </button>
@@ -198,15 +191,12 @@ export const TodoCard = ({ onCreateTemplate, inputRef }: TodoCardProps) => {
                       >
                         <input
                           name="subtask"
-                          className="flex-1 rounded-lg border border-white/10 bg-slate-900/40 px-3 py-2 text-xs text-white placeholder:text-slate-500 focus:outline-none"
+                          className="flex-1 rounded-lg border border-subtle bg-surface-card px-3 py-2 text-xs text-primary placeholder:text-muted focus:outline-none"
                           placeholder="Subtask title"
                         />
-                        <button
-                          type="submit"
-                          className="rounded-full bg-indigo-500/80 px-3 py-1 text-xs text-white hover:bg-indigo-400"
-                        >
+                        <Button type="submit" size="sm">
                           Add
-                        </button>
+                        </Button>
                       </form>
                     ) : null}
                   </div>
