@@ -39,7 +39,7 @@ export const defaultAppState = (): AppState => ({
 
 type TaskUpdate = Partial<Omit<Task, 'id' | 'subtasks' | 'tags'>> & {
   readonly subtasks?: readonly SubTask[];
-  readonly tags?: readonly Task['tags'];
+  readonly tags?: Task['tags'];
 };
 
 export type AppAction =

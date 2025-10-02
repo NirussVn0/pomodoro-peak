@@ -39,7 +39,7 @@ export class TemplateService {
 
   createFromCurrentTasks(name: string): TaskTemplate | null {
     const state = this.store.getState();
-    const items = state.tasks
+    const items = [...state.tasks]
       .sort((a, b) => a.order - b.order)
       .map((task) => ({
         title: task.title,

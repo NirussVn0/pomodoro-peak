@@ -1,11 +1,22 @@
 import { expect, vi } from 'vitest';
 
+const fakeRandomUUID = (): `${string}-${string}-${string}-${string}-${string}` => {
+  const randomHex = (length: number) =>
+    Array.from({ length }, () => Math.floor(Math.random() * 16).toString(16)).join('');
+  const segment1 = randomHex(8);
+  const segment2 = randomHex(4);
+  const segment3 = `4${randomHex(3)}`;
+  const segment4 = `${(8 + Math.floor(Math.random() * 4)).toString(16)}${randomHex(3)}`;
+  const segment5 = randomHex(12);
+  return `${segment1}-${segment2}-${segment3}-${segment4}-${segment5}`;
+};
+
 if (typeof globalThis.crypto === 'undefined') {
   (globalThis as unknown as { crypto: Crypto }).crypto = {
-    randomUUID: () => `test-${Math.random().toString(16).slice(2)}`,
+    randomUUID: fakeRandomUUID,
   } as Crypto;
 } else if (typeof globalThis.crypto.randomUUID === 'undefined') {
-  globalThis.crypto.randomUUID = () => `test-${Math.random().toString(16).slice(2)}`;
+  globalThis.crypto.randomUUID = fakeRandomUUID;
 }
 
 

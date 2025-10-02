@@ -2,7 +2,6 @@
 
 import { Dialog, Transition } from '@headlessui/react';
 import { Fragment, useEffect, useMemo, useState } from 'react';
-import { clsx } from 'clsx';
 import { useAppSelector, useAppServices } from '../context/app-context';
 import { Button } from './primitives/button';
 import type { BackgroundKind, BackgroundSettings } from '../../domain/value-objects/background';
