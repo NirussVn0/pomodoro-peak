@@ -5,7 +5,8 @@ import { Fragment, useEffect, useMemo, useState } from 'react';
 import { clsx } from 'clsx';
 import { useAppSelector, useAppServices } from '../context/app-context';
 import { Button } from './primitives/button';
-import type { BackgroundKind } from '../../domain/value-objects/background';
+import type { BackgroundKind, BackgroundSettings } from '../../domain/value-objects/background';
+import { DEFAULT_BACKGROUNDS } from '../../domain/value-objects/background';
 
 interface SettingsDialogProps {
   readonly open: boolean;
@@ -18,11 +19,17 @@ const backgroundKinds: { value: BackgroundKind; label: string }[] = [
   { value: 'image', label: 'Image' },
 ];
 
-const defaultBackgroundByKind: Record<BackgroundKind, string> = {
-  solid: '#141824',
-  gradient: 'linear-gradient(135deg, rgba(79,70,229,0.85), rgba(167,139,250,0.8))',
-  image: 'https://images.unsplash.com/photo-1521737604893-d14cc237f11d?auto=format&fit=crop&w=1200&q=80',
-};
+const defaultBackgroundByKind: Record<BackgroundKind, BackgroundSettings> = DEFAULT_BACKGROUNDS.reduce(
+  (acc, item) => ({
+    ...acc,
+    [item.kind]: item,
+  }),
+  {
+    solid: DEFAULT_BACKGROUNDS[0],
+    gradient: DEFAULT_BACKGROUNDS[1],
+    image: DEFAULT_BACKGROUNDS[2],
+  } as Record<BackgroundKind, BackgroundSettings>,
+);
 
 export const SettingsDialog = ({ open, onClose }: SettingsDialogProps) => {
   const { timer, settings } = useAppServices();
@@ -30,27 +37,42 @@ export const SettingsDialog = ({ open, onClose }: SettingsDialogProps) => {
   const preferences = useAppSelector((state) => state.timer.config.preferences);
   const appSettings = useAppSelector((state) => state.settings);
   const [backgroundValue, setBackgroundValue] = useState(
-    appSettings.background.value ?? defaultBackgroundByKind[appSettings.background.kind],
+    appSettings.background.value ?? defaultBackgroundByKind[appSettings.background.kind].value,
   );
 
   useEffect(() => {
     setBackgroundValue(appSettings.background.value);
   }, [appSettings.background.value]);
 
-  const handleBackgroundChange = (kind: BackgroundKind, value: string) => {
-    const safeValue = value || defaultBackgroundByKind[kind];
-    setBackgroundValue(safeValue);
+  const handleBackgroundPreset = (preset: BackgroundSettings) => {
+    const payload = { ...preset };
+    setBackgroundValue(payload.value);
+    settings.updateBackground(payload);
+  };
+
+  const handleBackgroundKindChange = (kind: BackgroundKind) => {
+    const preset = defaultBackgroundByKind[kind];
+    handleBackgroundPreset({ ...preset });
+  };
+
+  const handleBackgroundValueSave = () => {
+    const trimmed = backgroundValue.trim();
+    const source = defaultBackgroundByKind[appSettings.background.kind];
+    const valueToPersist = trimmed.length > 0 ? backgroundValue : source.value;
     settings.updateBackground({
       ...appSettings.background,
-      kind,
-      value: safeValue,
+      value: valueToPersist,
     });
+    setBackgroundValue(valueToPersist);
   };
 
   const sliderLabel = useMemo(
     () => `${Math.round(appSettings.background.opacity * 100)}%`,
     [appSettings.background.opacity],
   );
+
+  const isBackgroundDirty =
+    backgroundValue.trim() !== (appSettings.background.value ?? '').trim();
 
   return (
     <Transition show={open} as={Fragment}>
@@ -210,24 +232,20 @@ export const SettingsDialog = ({ open, onClose }: SettingsDialogProps) => {
                         </div>
                       </div>
                       <div className="flex flex-wrap items-center gap-3">
-                        {backgroundKinds.map((item) => (
-                          <Button
-                            key={item.value}
-                            type="button"
-                            size="sm"
-                            variant={appSettings.background.kind === item.value ? 'primary' : 'secondary'}
-                            onClick={() =>
-                              handleBackgroundChange(
-                                item.value,
-                                item.value === appSettings.background.kind
-                                  ? backgroundValue
-                                  : defaultBackgroundByKind[item.value],
-                              )
-                            }
-                          >
-                            {item.label}
-                          </Button>
-                        ))}
+                        {backgroundKinds.map((item) => {
+                          const isActive = appSettings.background.kind === item.value;
+                          return (
+                            <Button
+                              key={item.value}
+                              type="button"
+                              size="sm"
+                              variant={isActive ? 'primary' : 'secondary'}
+                              onClick={() => handleBackgroundKindChange(item.value)}
+                            >
+                              {item.label}
+                            </Button>
+                          );
+                        })}
                       </div>
                       <label className="flex items-center gap-3">
                         <span className="w-32 text-muted">Background value</span>
@@ -235,21 +253,38 @@ export const SettingsDialog = ({ open, onClose }: SettingsDialogProps) => {
                           <input
                             type="color"
                             value={backgroundValue}
-                            onChange={(event) => handleBackgroundChange('solid', event.target.value)}
+                            onChange={(event) =>
+                              handleBackgroundPreset({
+                                ...appSettings.background,
+                                kind: 'solid',
+                                value: event.target.value,
+                              })
+                            }
                             className="h-10 w-20 rounded-lg border border-subtle bg-transparent"
                           />
                         ) : (
-                          <input
-                            type="text"
-                            value={backgroundValue}
-                            onChange={(event) => handleBackgroundChange(appSettings.background.kind, event.target.value)}
-                            placeholder={
-                              appSettings.background.kind === 'image'
-                                ? 'Image URL'
-                                : 'CSS gradient (e.g. linear-gradient(...))'
-                            }
-                            className="flex-1 rounded-lg border border-subtle bg-surface-card px-3 py-2 text-sm text-primary placeholder:text-muted focus:outline-none focus:ring-2 focus:ring-[color:var(--accent-ring)]"
-                          />
+                          <div className="flex flex-1 items-center gap-2">
+                            <input
+                              type="text"
+                              value={backgroundValue}
+                              onChange={(event) => setBackgroundValue(event.target.value)}
+                              placeholder={
+                                appSettings.background.kind === 'image'
+                                  ? 'Image URL'
+                                  : 'CSS gradient (e.g. linear-gradient(...))'
+                              }
+                              className="flex-1 rounded-lg border border-subtle bg-surface-card px-3 py-2 text-sm text-primary placeholder:text-muted focus:outline-none focus:ring-2 focus:ring-[color:var(--accent-ring)]"
+                            />
+                            <Button
+                              type="button"
+                              size="sm"
+                              variant="secondary"
+                              onClick={handleBackgroundValueSave}
+                              disabled={!isBackgroundDirty}
+                            >
+                              Save
+                            </Button>
+                          </div>
                         )}
                       </label>
                       <label className="flex items-center gap-3">
