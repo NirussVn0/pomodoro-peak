@@ -41,7 +41,7 @@ export const TimerCard = ({ onOpenSettings }: TimerCardProps) => {
 
   return (
     <section className="flex flex-1 flex-col gap-6 rounded-lg border border-subtle bg-surface-card p-6 shadow-elevated backdrop-blur-xl">
-      <header className="flex items-center justify-between">
+      <header className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <p className="text-sm uppercase tracking-[0.2em] text-muted">Pomodoro</p>
           <h2 className="text-2xl font-semibold text-primary">Stay in the zone</h2>
@@ -52,6 +52,7 @@ export const TimerCard = ({ onOpenSettings }: TimerCardProps) => {
           size="sm"
           icon={<Cog6ToothIcon className="h-5 w-5" />}
           onClick={onOpenSettings}
+          className="w-full sm:w-auto"
         >
           Settings
         </Button>
@@ -77,14 +78,14 @@ export const TimerCard = ({ onOpenSettings }: TimerCardProps) => {
         })}
       </div>
       <div className="flex flex-col items-center justify-center gap-4 py-8 text-center">
-        <div className="text-[4.5rem] font-semibold leading-none tracking-tight text-primary">
+        <div className="text-[3.5rem] font-semibold leading-none tracking-tight text-primary sm:text-[4rem] lg:text-[4.5rem]">
           {formatTime(timerState.remainingMs)}
         </div>
         <p className="text-sm text-muted">
           {timerState.mode === 'focus' ? 'Deep work session' : 'Recharge moment'} · Today: {stats} sessions
         </p>
       </div>
-      <div className="flex items-center justify-center gap-4">
+      <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-4">
         <Button
           type="button"
           size="lg"
@@ -105,7 +106,7 @@ export const TimerCard = ({ onOpenSettings }: TimerCardProps) => {
       </div>
       <footer className="rounded-lg border border-subtle bg-surface-overlay-soft p-4 text-sm text-muted">
         <p className="font-medium text-primary">Quick glance</p>
-        <div className="mt-3 grid grid-cols-2 gap-4 text-xs">
+        <div className="mt-3 grid grid-cols-2 gap-4 text-xs md:grid-cols-4">
           <div>
             <p className="text-muted">Focus length</p>
             <p className="text-primary">{durations.focus} min</p>

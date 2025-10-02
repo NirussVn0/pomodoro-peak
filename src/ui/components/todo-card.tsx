@@ -41,25 +41,39 @@ export const TodoCard = ({ onCreateTemplate, inputRef }: TodoCardProps) => {
 
   return (
     <section className="flex flex-1 flex-col gap-6 rounded-lg border border-subtle bg-surface-card p-6 shadow-elevated backdrop-blur-xl">
-      <header className="flex items-center justify-between">
+      <header className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <p className="text-sm uppercase tracking-[0.2em] text-muted">To-do</p>
           <h2 className="text-2xl font-semibold text-primary">Plan the day</h2>
         </div>
-        <Button type="button" variant="secondary" size="sm" onClick={onCreateTemplate}>
+        <Button
+          type="button"
+          variant="secondary"
+          size="sm"
+          onClick={onCreateTemplate}
+          className="w-full sm:w-auto"
+        >
           Save as template
         </Button>
       </header>
-      <form onSubmit={handleSubmit} className="flex items-center gap-3 rounded-lg border border-subtle bg-surface-overlay-soft px-4 py-3">
+      <form
+        onSubmit={handleSubmit}
+        className="flex flex-col gap-3 rounded-lg border border-subtle bg-surface-overlay-soft px-4 py-3 sm:flex-row sm:items-center sm:gap-4"
+      >
         <input
           ref={inputRef}
-          className="flex-1 bg-transparent text-sm text-primary placeholder:text-muted focus:outline-none"
+          className="w-full flex-1 bg-transparent text-sm text-primary placeholder:text-muted focus:outline-none"
           value={taskTitle}
           onChange={(event) => setTaskTitle(event.target.value)}
           placeholder="Quick add a task (N)"
           aria-label="Add task"
         />
-        <Button type="submit" size="sm" icon={<PlusIcon className="h-4 w-4" />}>
+        <Button
+          type="submit"
+          size="sm"
+          icon={<PlusIcon className="h-4 w-4" />}
+          className="w-full sm:w-auto"
+        >
           Add
         </Button>
       </form>
@@ -187,14 +201,14 @@ export const TodoCard = ({ onCreateTemplate, inputRef }: TodoCardProps) => {
                           todo.addSubtask(task.id, title);
                           event.currentTarget.reset();
                         }}
-                        className="flex items-center gap-2"
+                        className="flex flex-col gap-2 sm:flex-row sm:items-center"
                       >
                         <input
                           name="subtask"
-                          className="flex-1 rounded-lg border border-subtle bg-surface-card px-3 py-2 text-xs text-primary placeholder:text-muted focus:outline-none"
+                          className="w-full flex-1 rounded-lg border border-subtle bg-surface-card px-3 py-2 text-xs text-primary placeholder:text-muted focus:outline-none"
                           placeholder="Subtask title"
                         />
-                        <Button type="submit" size="sm">
+                        <Button type="submit" size="sm" className="w-full sm:w-auto">
                           Add
                         </Button>
                       </form>

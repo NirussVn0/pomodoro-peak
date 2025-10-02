@@ -32,7 +32,7 @@ export default function HomePage() {
   };
 
   return (
-    <div className="flex min-h-screen gap-6 p-4 md:p-8">
+    <div className="flex min-h-screen flex-col gap-4 p-4 md:gap-6 md:p-6 xl:flex-row xl:p-8">
       <Sidebar onOpenSettings={() => setSettingsOpen(true)} />
       <div className="flex w-full flex-1 flex-col gap-8">
         <header className="flex flex-col gap-4 rounded-3xl border border-white/10 bg-white/5 p-6 shadow-lg backdrop-blur-xl md:flex-row md:items-center md:justify-between">
