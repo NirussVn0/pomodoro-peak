@@ -1,6 +1,7 @@
 import type { AppStore } from '../state/app-store';
 import type { UuidPort } from '../ports/uuid-port';
 import type { TaskTemplate } from '../../domain/entities/task';
+import { createEmptyTask, createSubtask } from '../../domain/entities/task';
 import { createTaskFromTemplate } from '../state/app-reducer';
 import type { TimePort } from '../ports/time-port';
 
@@ -20,15 +21,7 @@ export class TodoService {
     const state = this.store.getState();
     const order = state.tasks.length;
     const timestamp = this.time.now();
-    const task = {
-      id,
-      title: trimmed,
-      completed: false,
-      subtasks: [],
-      tags: [],
-      createdAt: timestamp,
-      order,
-    } as const;
+    const task = createEmptyTask({ id, title: trimmed, order, timestamp });
     this.store.dispatch({ type: 'tasks/add', task });
   }
 
@@ -58,7 +51,7 @@ export class TodoService {
     if (!trimmed) {
       return;
     }
-    const subtask = { id: this.uuid.generate(), title: trimmed, completed: false } as const;
+    const subtask = createSubtask({ id: this.uuid.generate(), title: trimmed });
     const state = this.store.getState();
     const task = state.tasks.find((item) => item.id === taskId);
     if (!task) {

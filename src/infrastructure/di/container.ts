@@ -70,7 +70,8 @@ export const createBrowserContainer = async (): Promise<ApplicationServices> => 
 
   if (typeof window !== 'undefined') {
     let current = store.getState();
-    store.subscribe((next) => {
+    store.subscribe(() => {
+      const next = store.getState();
       if (next === current) {
         return;
       }

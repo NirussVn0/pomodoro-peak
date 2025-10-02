@@ -15,6 +15,8 @@ import { DEFAULT_TEMPLATES, createEmptyTask, createSubtask } from '../../domain/
 import type { AppSettings } from '../../domain/value-objects/settings';
 import { DEFAULT_APP_SETTINGS } from '../../domain/value-objects/settings';
 import type { BackgroundSettings } from '../../domain/value-objects/background';
+import { TimerAggregate } from '../../domain/aggregates/timer-aggregate';
+import { TaskListAggregate } from '../../domain/aggregates/task-list-aggregate';
 
 export interface AppState {
   readonly timer: TimerSnapshot;
@@ -75,126 +77,43 @@ export type AppAction =
   | { readonly type: 'templates/upsert'; readonly template: TaskTemplate }
   | { readonly type: 'templates/remove'; readonly id: string };
 
-const reorderTasks = (tasks: readonly Task[], orderedIds: readonly string[]): readonly Task[] => {
-  const orderMap = new Map<string, number>();
-  orderedIds.forEach((id, index) => orderMap.set(id, index));
-  return tasks
-    .map((task) => ({ ...task, order: orderMap.get(task.id) ?? task.order }))
-    .slice()
-    .sort((a, b) => a.order - b.order);
-};
+// Replaced with TaskListService.reorder for clearer responsibilities
 
 export const appReducer = (state: AppState, action: AppAction): AppState => {
   switch (action.type) {
-    case 'timer/start':
-      return {
-        ...state,
-        timer: {
-          ...state.timer,
-          state: {
-            ...state.timer.state,
-            isRunning: true,
-            lastStartedAt: action.timestamp,
-          },
-        },
-      };
+    case 'timer/start': {
+      const aggregate = TimerAggregate.fromSnapshot(state.timer).start(action.timestamp);
+      return { ...state, timer: aggregate.toSnapshot() };
+    }
     case 'timer/pause':
-      return {
-        ...state,
-        timer: {
-          ...state.timer,
-          state: {
-            ...state.timer.state,
-            isRunning: false,
-            lastStartedAt: undefined,
-          },
-        },
-      };
+      return { ...state, timer: TimerAggregate.fromSnapshot(state.timer).pause().toSnapshot() };
     case 'timer/reset': {
-      const mode = action.mode ?? state.timer.state.mode;
-      const duration = state.timer.config.durations[mode];
-      return {
-        ...state,
-        timer: {
-          ...state.timer,
-          state: {
-            mode,
-            isRunning: false,
-            remainingMs: duration * 60 * 1000,
-          },
-        },
-      };
+      const aggregate = TimerAggregate.fromSnapshot(state.timer).reset(action.timestamp, action.mode);
+      return { ...state, timer: aggregate.toSnapshot() };
     }
     case 'timer/set-mode': {
-      const duration = state.timer.config.durations[action.mode];
-      return {
-        ...state,
-        timer: {
-          ...state.timer,
-          state: {
-            mode: action.mode,
-            isRunning: false,
-            remainingMs: duration * 60 * 1000,
-          },
-        },
-      };
+      const aggregate = TimerAggregate.fromSnapshot(state.timer).setMode(action.timestamp, action.mode);
+      return { ...state, timer: aggregate.toSnapshot() };
     }
     case 'timer/tick': {
-      const nextRemaining = Math.max(0, state.timer.state.remainingMs - action.deltaMs);
-      return {
-        ...state,
-        timer: {
-          ...state.timer,
-          state: {
-            ...state.timer.state,
-            remainingMs: nextRemaining,
-          },
-        },
-      };
+      const aggregate = TimerAggregate.fromSnapshot(state.timer).tick(action.deltaMs);
+      return { ...state, timer: aggregate.toSnapshot() };
     }
     case 'timer/apply-remaining':
       return {
         ...state,
-        timer: {
-          ...state.timer,
-          state: {
-            ...state.timer.state,
-            remainingMs: action.remainingMs,
-          },
-        },
+        timer: TimerAggregate.fromSnapshot(state.timer).applyRemaining(action.remainingMs).toSnapshot(),
       };
     case 'timer/set-durations': {
-      const durations = action.durations;
-      const mode = state.timer.state.mode;
-      const nextRemaining = durations[mode] * 60 * 1000;
       return {
         ...state,
-        timer: {
-          ...state.timer,
-          config: {
-            ...state.timer.config,
-            durations,
-          },
-          state: {
-            ...state.timer.state,
-            remainingMs: Math.min(state.timer.state.remainingMs, nextRemaining),
-          },
-        },
+        timer: TimerAggregate.fromSnapshot(state.timer).setDurations(action.durations).toSnapshot(),
       };
     }
     case 'timer/set-preferences':
       return {
         ...state,
-        timer: {
-          ...state.timer,
-          config: {
-            ...state.timer.config,
-            preferences: {
-              ...state.timer.config.preferences,
-              ...action.preferences,
-            },
-          },
-        },
+        timer: TimerAggregate.fromSnapshot(state.timer).setPreferences(action.preferences).toSnapshot(),
       };
     case 'stats/increment-session':
       return {
@@ -205,34 +124,13 @@ export const appReducer = (state: AppState, action: AppAction): AppState => {
         },
       };
     case 'tasks/add':
-      return {
-        ...state,
-        tasks: [...state.tasks, action.task].sort((a, b) => a.order - b.order),
-      };
+      return { ...state, tasks: TaskListAggregate.from(state.tasks).add(action.task).toArray() };
     case 'tasks/update':
-      return {
-        ...state,
-        tasks: state.tasks.map((task) =>
-          task.id === action.id
-            ? {
-                ...task,
-                ...action.update,
-                subtasks: action.update.subtasks ?? task.subtasks,
-                tags: action.update.tags ?? task.tags,
-              }
-            : task,
-        ),
-      };
+      return { ...state, tasks: TaskListAggregate.from(state.tasks).update(action.id, action.update).toArray() };
     case 'tasks/remove':
-      return {
-        ...state,
-        tasks: state.tasks.filter((task) => task.id !== action.id),
-      };
+      return { ...state, tasks: TaskListAggregate.from(state.tasks).remove(action.id).toArray() };
     case 'tasks/reorder':
-      return {
-        ...state,
-        tasks: reorderTasks(state.tasks, action.orderedIds),
-      };
+      return { ...state, tasks: TaskListAggregate.from(state.tasks).reorder(action.orderedIds).toArray() };
     case 'tasks/apply-template':
       return {
         ...state,
@@ -241,38 +139,17 @@ export const appReducer = (state: AppState, action: AppAction): AppState => {
     case 'tasks/update-subtask':
       return {
         ...state,
-        tasks: state.tasks.map((task) =>
-          task.id === action.taskId
-            ? {
-                ...task,
-                subtasks: task.subtasks.map((sub) => (sub.id === action.subtask.id ? action.subtask : sub)),
-              }
-            : task,
-        ),
+        tasks: TaskListAggregate.from(state.tasks).updateSubtask(action.taskId, action.subtask).toArray(),
       };
     case 'tasks/remove-subtask':
       return {
         ...state,
-        tasks: state.tasks.map((task) =>
-          task.id === action.taskId
-            ? {
-                ...task,
-                subtasks: task.subtasks.filter((sub) => sub.id !== action.subtaskId),
-              }
-            : task,
-        ),
+        tasks: TaskListAggregate.from(state.tasks).removeSubtask(action.taskId, action.subtaskId).toArray(),
       };
     case 'tasks/replace-subtasks':
       return {
         ...state,
-        tasks: state.tasks.map((task) =>
-          task.id === action.taskId
-            ? {
-                ...task,
-                subtasks: [...action.subtasks],
-              }
-            : task,
-        ),
+        tasks: TaskListAggregate.from(state.tasks).replaceSubtasks(action.taskId, action.subtasks).toArray(),
       };
     case 'settings/update':
       return {
