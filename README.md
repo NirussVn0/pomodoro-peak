@@ -13,12 +13,17 @@ The Pomodoro Technique is a time management method developed by Francesco Cirill
 
 ## 💻 Goal Features
 - [x] **Classic Pomodoro Timer** - ⏰ 25-minute work intervals with 5-minute breaks
-- [x] **Progress Visualization** - visual representation of your work and break intervals **Progress Tracking** - Monitor your productivity over time
+- [x] **Progress Visualization** - visual representation of your work and break intervals 
+- [x] **Progress Tracking** - Monitor your productivity over time
 - [x] **Customizable Alerts** - Visual and audio notifications
 - [x] **Dark Mode** - Easy on the eyes during late-night work sessions
 - [x] **Todolist** - Add tasks to your to-do list and mark them as complete
+- [x] **Template list** - Save a template list of tasks
 - [x] **Change time** - Change the work and break time to suit your needs
-- [x] **Customizable** - Change background
+- [x] **Keyboard Shortcuts** - Shortcuts to start, stop, and reset the timer
+- [x] **Customizable background** - Change background
+- [x] **Customizable color** - Change the color, blur, opacity of the timer
+- [x] **Responsive** - Responsive design all devices
 - [.] **Contribute API** - Add your own API to the web
 - [.] **Sign in with Google** - Sign in with your Google account
 
