@@ -31,8 +31,9 @@ export const Sidebar = ({ onOpenSettings }: SidebarProps) => {
   return (
     <aside className="flex w-full flex-nowrap items-center gap-3 overflow-x-auto rounded-lg border border-subtle bg-surface-card px-3 py-2 shadow-elevated backdrop-blur-xl sm:gap-4 sm:px-4 sm:py-3 xl:h-full xl:w-24 xl:flex-col xl:items-center xl:gap-4 xl:overflow-visible xl:px-2 xl:py-6">
       <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-lg bg-[color:var(--accent-solid)] text-lg font-semibold text-[color:var(--text-inverse)] shadow-[var(--shadow-elevated)]">
-        PP
+        SOV
       </div>
+            <img src="/logo.svg" alt="Timely" className="h-full w-full" />
       <nav className="flex flex-1 shrink-0 min-w-max items-center justify-center gap-3 xl:flex-1 xl:shrink xl:flex-col xl:justify-start xl:gap-4 xl:min-w-0">
         {navItems.map((item) => {
           const Icon = item.icon;
