@@ -33,7 +33,7 @@ export const Sidebar = ({ onOpenSettings }: SidebarProps) => {
       <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-lg bg-[color:var(--accent-solid)] text-lg font-semibold text-[color:var(--text-inverse)] shadow-[var(--shadow-elevated)]">
         SOV
       </div>
-            <img src="/logo.svg" alt="Timely" className="h-full w-full" />
+
       <nav className="flex flex-1 shrink-0 min-w-max items-center justify-center gap-3 xl:flex-1 xl:shrink xl:flex-col xl:justify-start xl:gap-4 xl:min-w-0">
         {navItems.map((item) => {
           const Icon = item.icon;
