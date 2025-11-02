@@ -4,6 +4,7 @@ import { Dialog, Transition } from '@headlessui/react';
 import { Fragment, useEffect, useMemo, useState } from 'react';
 import { useAppSelector, useAppServices } from '../context/app-context';
 import { Button } from './primitives/button';
+import { ToggleSwitch } from './primitives/toggle-switch';
 import type { BackgroundKind, BackgroundSettings } from '../../domain/value-objects/background';
 import { DEFAULT_BACKGROUNDS } from '../../domain/value-objects/background';
 
@@ -138,72 +139,92 @@ export const SettingsDialog = ({ open, onClose }: SettingsDialogProps) => {
                   <div className="rounded-lg border border-subtle bg-surface-overlay-soft p-5">
                     <h3 className="text-sm font-semibold uppercase tracking-wide text-muted">Automation & sounds</h3>
                     <div className="mt-4 space-y-3 text-sm text-primary">
-                      <label className="flex items-center justify-between gap-3">
+                      <div className="flex items-center justify-between gap-3">
                         <span>Auto-start focus sessions</span>
-                        <input
-                          type="checkbox"
+                        <ToggleSwitch
                           checked={preferences.autoStartFocus}
-                          onChange={(event) =>
-                            timer.updatePreferences({ autoStartFocus: event.target.checked })
+                          onClick={() =>
+                            timer.updatePreferences({ autoStartFocus: !preferences.autoStartFocus })
                           }
-                          className="h-4 w-4 rounded border-subtle bg-surface-card text-[color:var(--accent-solid)] focus:ring-[color:var(--accent-ring)]"
+                          aria-label="Toggle auto-start focus sessions"
                         />
-                      </label>
-                      <label className="flex items-center justify-between gap-3">
+                      </div>
+                      <div className="flex items-center justify-between gap-3">
                         <span>Auto-start breaks</span>
-                        <input
-                          type="checkbox"
+                        <ToggleSwitch
                           checked={preferences.autoStartBreaks}
-                          onChange={(event) =>
-                            timer.updatePreferences({ autoStartBreaks: event.target.checked })
+                          onClick={() =>
+                            timer.updatePreferences({ autoStartBreaks: !preferences.autoStartBreaks })
                           }
-                          className="h-4 w-4 rounded border-subtle bg-surface-card text-[color:var(--accent-solid)] focus:ring-[color:var(--accent-ring)]"
+                          aria-label="Toggle auto-start breaks"
                         />
-                      </label>
-                      <label className="flex items-center justify-between gap-3">
+                      </div>
+                      <div className="flex items-center justify-between gap-3">
                         <span>Tick sound</span>
-                        <input
-                          type="checkbox"
+                        <ToggleSwitch
                           checked={preferences.tickSound}
-                          onChange={(event) => timer.updatePreferences({ tickSound: event.target.checked })}
-                          className="h-4 w-4 rounded border-subtle bg-surface-card text-[color:var(--accent-solid)] focus:ring-[color:var(--accent-ring)]"
+                          onClick={() => timer.updatePreferences({ tickSound: !preferences.tickSound })}
+                          aria-label="Toggle tick sound"
                         />
-                      </label>
-                      <label className="flex items-center justify-between gap-3">
+                      </div>
+                      <div className="flex items-center justify-between gap-3">
                         <span>Alarm on completion</span>
-                        <input
-                          type="checkbox"
+                        <ToggleSwitch
                           checked={preferences.alarmSound}
-                          onChange={(event) => timer.updatePreferences({ alarmSound: event.target.checked })}
-                          className="h-4 w-4 rounded border-subtle bg-surface-card text-[color:var(--accent-solid)] focus:ring-[color:var(--accent-ring)]"
+                          onClick={() => timer.updatePreferences({ alarmSound: !preferences.alarmSound })}
+                          aria-label="Toggle alarm on completion"
                         />
-                      </label>
-                      <label className="flex items-center justify-between gap-3">
+                      </div>
+                      <div className="flex items-center justify-between gap-3">
+                        <span>Auto-complete focused task</span>
+                        <ToggleSwitch
+                          checked={appSettings.tasks.autoCompleteOnFocusEnd}
+                          onClick={() =>
+                            settings.updateSettings({
+                              tasks: {
+                                autoCompleteOnFocusEnd: !appSettings.tasks.autoCompleteOnFocusEnd,
+                              },
+                            })
+                          }
+                          aria-label="Toggle auto-complete focused task"
+                        />
+                      </div>
+                      <div className="flex items-center justify-between gap-3">
+                        <span>Move completed tasks down</span>
+                        <ToggleSwitch
+                          checked={appSettings.tasks.autoSortCompleted}
+                          onClick={() =>
+                            settings.updateSettings({
+                              tasks: { autoSortCompleted: !appSettings.tasks.autoSortCompleted },
+                            })
+                          }
+                          aria-label="Toggle moving completed tasks down"
+                        />
+                      </div>
+                      <div className="flex items-center justify-between gap-3">
                         <span>Desktop notifications</span>
-                        <input
-                          type="checkbox"
+                        <ToggleSwitch
                           checked={appSettings.notification.desktop}
-                          onChange={(event) =>
+                          onClick={() =>
                             settings.updateSettings({
-                              notification: { desktop: event.target.checked },
+                              notification: { desktop: !appSettings.notification.desktop },
                             })
                           }
-                          className="h-4 w-4 rounded border-subtle bg-surface-card text-[color:var(--accent-solid)] focus:ring-[color:var(--accent-ring)]"
+                          aria-label="Toggle desktop notifications"
                         />
-                      </label>
-                      <label className="flex items-center justify-between gap-3">
+                      </div>
+                      <div className="flex items-center justify-between gap-3">
                         <span>Keyboard shortcuts</span>
-                        <input
-                          type="checkbox"
+                        <ToggleSwitch
                           checked={appSettings.shortcuts.enabled}
-                          onChange={(event) =>
+                          onClick={() =>
                             settings.updateSettings({
-                              shortcuts: { enabled: event.target.checked },
+                              shortcuts: { enabled: !appSettings.shortcuts.enabled },
                             })
                           }
-                          className="h-4 w-4 rounded border-subtle bg-surface-card text-[color:var(--accent-solid)] focus:ring-[color:var(--accent-ring)]"
+                          aria-label="Toggle keyboard shortcuts"
                         />
-                      </label>
+                      </div>
                     </div>
                   </div>
                   <div className="rounded-lg border border-subtle bg-surface-overlay-soft p-5 md:col-span-2">

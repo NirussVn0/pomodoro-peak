@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, type FormEvent, type RefObject } from 'react';
-import { PlusIcon, TagIcon, TrashIcon, Bars3Icon } from '@heroicons/react/24/outline';
+import { FiPlus, FiTag, FiTrash2, FiMenu, FiCheckCircle, FiTarget } from 'react-icons/fi';
 import { clsx } from 'clsx';
 import { useAppSelector, useAppServices } from '../context/app-context';
 import { Button } from './primitives/button';
@@ -14,6 +14,7 @@ interface TodoCardProps {
 export const TodoCard = ({ onCreateTemplate, inputRef }: TodoCardProps) => {
   const { todo } = useAppServices();
   const tasks = useAppSelector((state) => state.tasks);
+  const activeTaskId = useAppSelector((state) => state.activeTaskId);
   const [taskTitle, setTaskTitle] = useState('');
   const [expandedTask, setExpandedTask] = useState<string | null>(null);
   const [draggingId, setDraggingId] = useState<string | null>(null);
@@ -71,7 +72,7 @@ export const TodoCard = ({ onCreateTemplate, inputRef }: TodoCardProps) => {
         <Button
           type="submit"
           size="sm"
-          icon={<PlusIcon className="h-4 w-4" />}
+          icon={<FiPlus className="h-4 w-4" />}
           className="w-full sm:w-auto"
         >
           Add
@@ -83,7 +84,9 @@ export const TodoCard = ({ onCreateTemplate, inputRef }: TodoCardProps) => {
             No tasks yet. Add your first focus item!
           </li>
         ) : (
-          tasks.map((task) => (
+          tasks.map((task) => {
+            const isActive = task.id === activeTaskId;
+            return (
             <li
               key={task.id}
               draggable
@@ -98,8 +101,10 @@ export const TodoCard = ({ onCreateTemplate, inputRef }: TodoCardProps) => {
                 handleDrop(task.id);
               }}
               className={clsx(
-                'group rounded-lg border border-subtle bg-surface-overlay-soft p-4 transition-colors',
-                draggingId === task.id && 'border-[color:var(--accent-ring)]',
+                'group rounded-lg border border-subtle bg-surface-overlay-soft p-4 transition-all',
+                draggingId === task.id && 'border-[color:var(--accent-ring)] shadow-[0_8px_20px_rgba(78,207,255,0.25)]',
+                isActive && !task.completed && 'border-[color:var(--accent-ring)] shadow-[0_12px_30px_rgba(78,207,255,0.25)]',
+                task.completed && 'opacity-80',
               )}
             >
               <div className="flex items-start gap-3">
@@ -107,32 +112,50 @@ export const TodoCard = ({ onCreateTemplate, inputRef }: TodoCardProps) => {
                   type="button"
                   onClick={() => todo.toggleTask(task.id)}
                   className={clsx(
-                    'mt-1 flex h-5 w-5 items-center justify-center rounded-md border text-xs font-semibold transition-colors',
+                    'mt-1 flex h-7 w-7 items-center justify-center rounded-full border-2 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--accent-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-[color:var(--surface-page)]',
                     task.completed
-                      ? 'border-[color:var(--accent-ring)] bg-[color:var(--accent-solid)] text-[color:var(--text-inverse)]'
-                      : 'border-subtle text-muted hover:border-[color:var(--accent-ring)] hover:text-primary',
+                      ? 'border-transparent bg-[color:var(--accent-solid)] text-[color:var(--text-inverse)] shadow-[0_10px_24px_rgba(78,207,255,0.35)]'
+                      : isActive
+                          ? 'border-[color:var(--accent-ring)] text-[color:var(--accent-ring)]'
+                          : 'border-subtle text-muted hover:border-[color:var(--accent-ring)] hover:text-primary',
                   )}
                   aria-label={task.completed ? 'Mark incomplete' : 'Mark complete'}
                 >
-                  {task.completed ? '✓' : ''}
+                  {task.completed ? <FiCheckCircle className="h-4 w-4" /> : null}
                 </button>
                 <div className="flex-1">
                   <div className="flex items-center gap-2">
                     <input
                       value={task.title}
                       onChange={(event) => todo.updateTitle(task.id, event.target.value)}
-                      className="w-full bg-transparent text-base font-medium text-primary focus:outline-none"
+                      className={clsx(
+                        'w-full bg-transparent text-base font-medium text-primary transition-colors focus:outline-none',
+                        task.completed && 'text-muted line-through',
+                      )}
                     />
+                    {!task.completed ? (
+                      <button
+                        type="button"
+                        onClick={() => todo.focusTask(task.id)}
+                        className={clsx(
+                          'rounded-full border border-transparent p-2 text-muted transition hover:text-primary',
+                          isActive && 'text-[color:var(--accent-ring)]',
+                        )}
+                        aria-label="Set as focus task"
+                      >
+                        <FiTarget className="h-4 w-4" />
+                      </button>
+                    ) : null}
                     <button
                       type="button"
                       onClick={() => todo.removeTask(task.id)}
                       className="hidden rounded-lg border border-transparent p-2 text-muted transition hover:border-red-300/50 hover:text-red-400 group-hover:flex"
                       aria-label="Delete task"
                     >
-                      <TrashIcon className="h-4 w-4" />
+                      <FiTrash2 className="h-4 w-4" />
                     </button>
                     <span className="hidden cursor-grab text-muted group-hover:block" aria-hidden>
-                      <Bars3Icon className="h-5 w-5" />
+                      <FiMenu className="h-5 w-5" />
                     </span>
                   </div>
                   <div className="mt-3 flex flex-wrap gap-2">
@@ -162,7 +185,7 @@ export const TodoCard = ({ onCreateTemplate, inputRef }: TodoCardProps) => {
                       }}
                       className="flex items-center gap-1 rounded-lg border border-subtle px-3 py-1 text-xs text-muted transition hover:border-[color:var(--accent-ring)] hover:text-primary"
                     >
-                      <TagIcon className="h-3 w-3" />
+                      <FiTag className="h-4 w-4" />
                       Tag
                     </button>
                   </div>
@@ -217,7 +240,8 @@ export const TodoCard = ({ onCreateTemplate, inputRef }: TodoCardProps) => {
                 </div>
               </div>
             </li>
-          ))
+          );
+        })
         )}
       </ul>
     </section>

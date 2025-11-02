@@ -1,6 +1,6 @@
 'use client';
 
-import { MoonIcon, SunIcon } from '@heroicons/react/24/outline';
+import { FiMoon, FiSun } from 'react-icons/fi';
 import { useAppSelector, useAppServices } from '../context/app-context';
 import { Button } from './primitives/button';
 
@@ -13,7 +13,7 @@ export const ThemeToggle = () => {
       type="button"
       variant="secondary"
       size="sm"
-      icon={theme === 'dark' ? <MoonIcon className="h-4 w-4" /> : <SunIcon className="h-4 w-4" />}
+      icon={theme === 'dark' ? <FiMoon className="h-4 w-4" /> : <FiSun className="h-4 w-4" />}
       onClick={toggle}
       aria-label="Toggle theme"
     >

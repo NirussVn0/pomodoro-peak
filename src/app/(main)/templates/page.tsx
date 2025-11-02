@@ -2,7 +2,7 @@
 
 import { useState, type FormEvent } from 'react';
 import Link from 'next/link';
-import { ArrowLeftIcon, PlusIcon, TrashIcon, ClipboardDocumentCheckIcon } from '@heroicons/react/24/outline';
+import { FiArrowLeft, FiPlus, FiTrash2, FiCheckSquare } from 'react-icons/fi';
 import { useAppSelector, useAppServices } from '../../../ui/context/app-context';
 
 export default function TemplatesPage() {
@@ -30,7 +30,7 @@ export default function TemplatesPage() {
       <header className="flex flex-col gap-4 rounded-3xl border border-white/10 bg-white/5 p-6 shadow-lg backdrop-blur-xl md:flex-row md:items-center md:justify-between">
         <div>
           <Link href="/" className="flex items-center gap-2 text-sm text-indigo-200 hover:text-white">
-            <ArrowLeftIcon className="h-4 w-4" /> Back to timer
+            <FiArrowLeft className="h-4 w-4" /> Back to timer
           </Link>
           <h1 className="mt-2 text-3xl font-semibold text-white">Templates</h1>
           <p className="text-sm text-slate-400">
@@ -65,7 +65,7 @@ export default function TemplatesPage() {
               type="submit"
               className="mt-2 flex items-center justify-center gap-2 rounded-full bg-gradient-to-r from-indigo-500 to-purple-500 px-4 py-2 text-sm font-medium text-white shadow-lg hover:from-indigo-400 hover:to-purple-400"
             >
-              <PlusIcon className="h-4 w-4" /> Create template
+              <FiPlus className="h-4 w-4" /> Create template
             </button>
           </form>
         </section>
@@ -93,14 +93,14 @@ export default function TemplatesPage() {
                         onClick={() => todo.applyTemplate(template)}
                         className="flex items-center gap-1 rounded-full border border-white/10 px-3 py-1 text-xs text-slate-200 transition hover:border-indigo-400/80 hover:text-white"
                       >
-                        <ClipboardDocumentCheckIcon className="h-4 w-4" /> Apply
+                        <FiCheckSquare className="h-4 w-4" /> Apply
                       </button>
                       <button
                         type="button"
                         onClick={() => templateService.removeTemplate(template.id)}
                         className="flex items-center gap-1 rounded-full border border-white/10 px-3 py-1 text-xs text-slate-200 transition hover:border-red-400/70 hover:text-red-200"
                       >
-                        <TrashIcon className="h-4 w-4" /> Delete
+                        <FiTrash2 className="h-4 w-4" /> Delete
                       </button>
                     </div>
                   </div>

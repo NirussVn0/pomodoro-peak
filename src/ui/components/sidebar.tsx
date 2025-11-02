@@ -2,12 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import {
-  ClockIcon,
-  Cog6ToothIcon,
-  RectangleGroupIcon,
-  UserCircleIcon,
-} from '@heroicons/react/24/outline';
+import { FiClock, FiSettings, FiLayers, FiUser } from 'react-icons/fi';
 import { clsx } from 'clsx';
 
 interface SidebarProps {
@@ -15,8 +10,8 @@ interface SidebarProps {
 }
 
 const navItems = [
-  { href: '/', icon: ClockIcon, label: 'Timer' },
-  { href: '/templates', icon: RectangleGroupIcon, label: 'Templates' },
+  { href: '/', icon: FiClock, label: 'Timer' },
+  { href: '/templates', icon: FiLayers, label: 'Templates' },
 ];
 
 const iconButtonClasses =
@@ -56,14 +51,14 @@ export const Sidebar = ({ onOpenSettings }: SidebarProps) => {
         className={iconButtonClasses}
         aria-label="Open settings"
       >
-        <Cog6ToothIcon className="h-6 w-6" />
+        <FiSettings className="h-6 w-6" />
       </button>
       <button
         type="button"
         className={iconButtonClasses}
         aria-label="Profile"
       >
-        <UserCircleIcon className="h-6 w-6" />
+        <FiUser className="h-6 w-6" />
       </button>
     </aside>
   );
