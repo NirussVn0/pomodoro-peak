@@ -11,6 +11,8 @@
 
 The Pomodoro Technique is a time management method developed by Francesco Cirillo in the late 1980s. The technique uses a timer to break down work into intervals, traditionally 25 minutes in length, separated by short breaks.
 
+### Wisit [Live Demo](https://sabicoder.xyz/pomodoro/)
+
 ## 💻 Goal Features
 - [x] **Classic Pomodoro Timer** - ⏰ 25-minute work intervals with 5-minute breaks
 - [x] **Progress Visualization** - visual representation of your work and break intervals 
@@ -24,12 +26,10 @@ The Pomodoro Technique is a time management method developed by Francesco Cirill
 - [x] **Customizable background** - Change background
 - [x] **Customizable color** - Change the color, blur, opacity of the timer
 - [x] **Responsive** - Responsive design all devices
-- [.] **Contribute API** - Add your own API to the web
-- [.] **Sign in with Google** - Sign in with your Google account
+- [-] **Contribute API** - Add your own API to the web
+- [-] **Sign in with Google** - Sign in with your Google account
 
 ## 🛠️ Getting Started
-
-### Wisit [Live Demo](https://sabicoder.xyz/pomodoro/)
 
 ### Prerequisites
 
