@@ -12,11 +12,24 @@ export interface ShortcutConfig {
   readonly enabled: boolean;
 }
 
+export type TimerViewMode = 'split' | 'focused' | 'mini';
+
+export interface LayoutSettings {
+  readonly timerView: TimerViewMode;
+}
+
+export interface TaskSettings {
+  readonly autoCompleteOnFocusEnd: boolean;
+  readonly autoSortCompleted: boolean;
+}
+
 export interface AppSettings {
   readonly theme: ThemePreference;
   readonly background: BackgroundSettings;
   readonly notification: NotificationPreferences;
   readonly shortcuts: ShortcutConfig;
+  readonly tasks: TaskSettings;
+  readonly layout: LayoutSettings;
 }
 
 export interface AppSnapshot {
@@ -34,6 +47,15 @@ export const DEFAULT_SHORTCUT_CONFIG: ShortcutConfig = {
   enabled: true,
 };
 
+export const DEFAULT_TASK_SETTINGS: TaskSettings = {
+  autoCompleteOnFocusEnd: true,
+  autoSortCompleted: true,
+};
+
+export const DEFAULT_LAYOUT_SETTINGS: LayoutSettings = {
+  timerView: 'split',
+};
+
 export const DEFAULT_APP_SETTINGS: AppSettings = {
   theme: 'dark',
   background: {
@@ -44,4 +66,6 @@ export const DEFAULT_APP_SETTINGS: AppSettings = {
   },
   notification: DEFAULT_NOTIFICATION_PREFERENCES,
   shortcuts: DEFAULT_SHORTCUT_CONFIG,
+  tasks: DEFAULT_TASK_SETTINGS,
+  layout: DEFAULT_LAYOUT_SETTINGS,
 };

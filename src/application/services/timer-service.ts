@@ -84,6 +84,33 @@ export class TimerService {
   private handleCompletion(timestamp: number): void {
     const state = this.store.getState();
     const currentMode = state.timer.state.mode;
+    if (currentMode === 'focus' && state.settings.tasks.autoCompleteOnFocusEnd && state.activeTaskId) {
+      const task = state.tasks.find((item) => item.id === state.activeTaskId);
+      if (task && !task.completed) {
+        const subtasks = task.subtasks.map((subtask) => ({ ...subtask, completed: true }));
+        this.store.dispatch({
+          type: 'tasks/update',
+          id: task.id,
+          update: { completed: true, subtasks },
+        });
+        if (state.settings.tasks.autoSortCompleted) {
+          const orderedIds = this.store
+            .getState()
+            .tasks.slice()
+            .sort((a, b) => {
+              if (a.completed === b.completed) {
+                return a.order - b.order;
+              }
+              return a.completed ? 1 : -1;
+            })
+            .map((item) => item.id);
+          this.store.dispatch({ type: 'tasks/reorder', orderedIds });
+        }
+        const nextState = this.store.getState();
+        const nextActive = nextState.tasks.find((item) => !item.completed);
+        this.store.dispatch({ type: 'tasks/set-active', id: nextActive ? nextActive.id : null });
+      }
+    }
     this.store.dispatch({ type: 'timer/pause' });
     this.lastTickAt = undefined;
     this.store.dispatch({ type: 'stats/increment-session', timestamp });

@@ -47,8 +47,25 @@ const mergeState = (stored: AppState | null): AppState => {
         ...defaults.settings.background,
         ...stored.settings?.background,
       },
+      notification: {
+        ...defaults.settings.notification,
+        ...stored.settings?.notification,
+      },
+      shortcuts: {
+        ...defaults.settings.shortcuts,
+        ...stored.settings?.shortcuts,
+      },
+      tasks: {
+        ...defaults.settings.tasks,
+        ...stored.settings?.tasks,
+      },
+      layout: {
+        ...defaults.settings.layout,
+        ...stored.settings?.layout,
+      },
     },
     templates: stored.templates?.length ? stored.templates : defaults.templates,
+    activeTaskId: stored.activeTaskId ?? defaults.activeTaskId,
   };
 };
 

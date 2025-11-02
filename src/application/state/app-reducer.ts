@@ -24,6 +24,7 @@ export interface AppState {
   readonly tasks: readonly Task[];
   readonly templates: readonly TaskTemplate[];
   readonly settings: AppSettings;
+  readonly activeTaskId: string | null;
 }
 
 export const defaultAppState = (): AppState => ({
@@ -35,6 +36,7 @@ export const defaultAppState = (): AppState => ({
     ...DEFAULT_APP_SETTINGS,
     background: { ...DEFAULT_APP_SETTINGS.background },
   },
+  activeTaskId: null,
 });
 
 type TaskUpdate = Partial<Omit<Task, 'id' | 'subtasks' | 'tags'>> & {
@@ -57,6 +59,7 @@ export type AppAction =
   | { readonly type: 'tasks/remove'; readonly id: string }
   | { readonly type: 'tasks/reorder'; readonly orderedIds: readonly string[] }
   | { readonly type: 'tasks/apply-template'; readonly tasks: readonly Task[] }
+  | { readonly type: 'tasks/set-active'; readonly id: string | null }
   | {
       readonly type: 'tasks/update-subtask';
       readonly taskId: string;
@@ -76,8 +79,6 @@ export type AppAction =
   | { readonly type: 'settings/update-background'; readonly background: BackgroundSettings }
   | { readonly type: 'templates/upsert'; readonly template: TaskTemplate }
   | { readonly type: 'templates/remove'; readonly id: string };
-
-// Replaced with TaskListService.reorder for clearer responsibilities
 
 export const appReducer = (state: AppState, action: AppAction): AppState => {
   switch (action.type) {
@@ -126,9 +127,18 @@ export const appReducer = (state: AppState, action: AppAction): AppState => {
     case 'tasks/add':
       return { ...state, tasks: TaskListAggregate.from(state.tasks).add(action.task).toArray() };
     case 'tasks/update':
-      return { ...state, tasks: TaskListAggregate.from(state.tasks).update(action.id, action.update).toArray() };
+      return {
+        ...state,
+        tasks: TaskListAggregate.from(state.tasks).update(action.id, action.update).toArray(),
+        activeTaskId:
+          state.activeTaskId === action.id && action.update.completed === true ? null : state.activeTaskId,
+      };
     case 'tasks/remove':
-      return { ...state, tasks: TaskListAggregate.from(state.tasks).remove(action.id).toArray() };
+      return {
+        ...state,
+        tasks: TaskListAggregate.from(state.tasks).remove(action.id).toArray(),
+        activeTaskId: state.activeTaskId === action.id ? null : state.activeTaskId,
+      };
     case 'tasks/reorder':
       return { ...state, tasks: TaskListAggregate.from(state.tasks).reorder(action.orderedIds).toArray() };
     case 'tasks/apply-template':
@@ -151,13 +161,29 @@ export const appReducer = (state: AppState, action: AppAction): AppState => {
         ...state,
         tasks: TaskListAggregate.from(state.tasks).replaceSubtasks(action.taskId, action.subtasks).toArray(),
       };
+    case 'tasks/set-active':
+      return { ...state, activeTaskId: action.id };
     case 'settings/update':
       return {
         ...state,
         settings: {
           ...state.settings,
           ...action.settings,
-          background: action.settings.background ?? state.settings.background,
+          background: action.settings.background
+            ? { ...state.settings.background, ...action.settings.background }
+            : state.settings.background,
+          notification: action.settings.notification
+            ? { ...state.settings.notification, ...action.settings.notification }
+            : state.settings.notification,
+          shortcuts: action.settings.shortcuts
+            ? { ...state.settings.shortcuts, ...action.settings.shortcuts }
+            : state.settings.shortcuts,
+          tasks: action.settings.tasks
+            ? { ...state.settings.tasks, ...action.settings.tasks }
+            : state.settings.tasks,
+          layout: action.settings.layout
+            ? { ...state.settings.layout, ...action.settings.layout }
+            : state.settings.layout,
         },
       };
     case 'settings/update-background':

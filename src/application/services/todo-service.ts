@@ -12,6 +12,15 @@ export class TodoService {
     private readonly time: TimePort,
   ) {}
 
+  focusTask(id: string): void {
+    const state = this.store.getState();
+    const task = state.tasks.find((item) => item.id === id);
+    if (!task || task.completed) {
+      return;
+    }
+    this.store.dispatch({ type: 'tasks/set-active', id });
+  }
+
   addTask(title: string): void {
     const trimmed = title.trim();
     if (!trimmed) {
@@ -23,6 +32,7 @@ export class TodoService {
     const timestamp = this.time.now();
     const task = createEmptyTask({ id, title: trimmed, order, timestamp });
     this.store.dispatch({ type: 'tasks/add', task });
+    this.syncActiveTask();
   }
 
   updateTitle(id: string, title: string): void {
@@ -35,15 +45,26 @@ export class TodoService {
     if (!task) {
       return;
     }
-    this.store.dispatch({ type: 'tasks/update', id, update: { completed: !task.completed } });
+    const nextCompleted = !task.completed;
+    const nextSubtasks = task.subtasks.map((subtask) => ({ ...subtask, completed: nextCompleted }));
+    this.store.dispatch({
+      type: 'tasks/update',
+      id,
+      update: { completed: nextCompleted, subtasks: nextSubtasks },
+    });
+    this.applyAutoSort();
+    this.syncActiveTask();
   }
 
   removeTask(id: string): void {
     this.store.dispatch({ type: 'tasks/remove', id });
+    this.applyAutoSort();
+    this.syncActiveTask();
   }
 
   reorder(orderedIds: readonly string[]): void {
     this.store.dispatch({ type: 'tasks/reorder', orderedIds });
+    this.syncActiveTask();
   }
 
   addSubtask(taskId: string, title: string): void {
@@ -62,6 +83,7 @@ export class TodoService {
       taskId,
       subtasks: [...task.subtasks, subtask],
     });
+    this.syncActiveTask();
   }
 
   toggleSubtask(taskId: string, subtaskId: string): void {
@@ -79,10 +101,12 @@ export class TodoService {
       taskId,
       subtask: { ...subtask, completed: !subtask.completed },
     });
+    this.syncActiveTask();
   }
 
   removeSubtask(taskId: string, subtaskId: string): void {
     this.store.dispatch({ type: 'tasks/remove-subtask', taskId, subtaskId });
+    this.syncActiveTask();
   }
 
   addTag(taskId: string, label: string): void {
@@ -131,5 +155,35 @@ export class TodoService {
       }),
     );
     this.store.dispatch({ type: 'tasks/apply-template', tasks });
+    this.applyAutoSort();
+    this.syncActiveTask();
+  }
+
+  private applyAutoSort(): void {
+    const settings = this.store.getState().settings.tasks;
+    if (!settings.autoSortCompleted) {
+      return;
+    }
+    const orderedIds = this.store
+      .getState()
+      .tasks.slice()
+      .sort((a, b) => {
+        if (a.completed === b.completed) {
+          return a.order - b.order;
+        }
+        return a.completed ? 1 : -1;
+      })
+      .map((item) => item.id);
+    this.store.dispatch({ type: 'tasks/reorder', orderedIds });
+  }
+
+  private syncActiveTask(): void {
+    const state = this.store.getState();
+    const active = state.activeTaskId ? state.tasks.find((item) => item.id === state.activeTaskId) : undefined;
+    if (active && !active.completed) {
+      return;
+    }
+    const next = state.tasks.find((item) => !item.completed);
+    this.store.dispatch({ type: 'tasks/set-active', id: next ? next.id : null });
   }
 }
