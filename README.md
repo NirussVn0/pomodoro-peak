@@ -26,8 +26,8 @@ The Pomodoro Technique is a time management method developed by Francesco Cirill
 - [x] **Customizable background** - Change background
 - [x] **Customizable color** - Change the color, blur, opacity of the timer
 - [x] **Responsive** - Responsive design all devices
-- [] **Contribute API** - Add your own API to the web
-- [] **Sign in with Google** - Sign in with your Google account
+- [ ] **Contribute API** - Add your own API to the web
+- [ ] **Sign in with Google** - Sign in with your Google account
 
 ## 🛠️ Getting Started
 

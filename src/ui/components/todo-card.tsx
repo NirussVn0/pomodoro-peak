@@ -8,7 +8,7 @@ import { Button } from './primitives/button';
 
 interface TodoCardProps {
   readonly onCreateTemplate: () => void;
-  readonly inputRef?: RefObject<HTMLInputElement>;
+  readonly inputRef?: RefObject<HTMLInputElement | null>;
 }
 
 export const TodoCard = ({ onCreateTemplate, inputRef }: TodoCardProps) => {

@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useRef, useState, type ReactNode } from "react";
 import { clsx } from "clsx";
 import type { IconType } from "react-icons";
 import { FiColumns, FiMaximize2, FiMinimize2 } from "react-icons/fi";
@@ -24,7 +24,7 @@ const layoutOptions: { value: TimerViewMode; icon: IconType; label: string }[] =
 
 export default function HomePage() {
   const [settingsOpen, setSettingsOpen] = useState(false);
-  const inputRef = useRef<HTMLInputElement>(null);
+  const inputRef = useRef<HTMLInputElement | null>(null);
   const { templates, settings } = useAppServices();
   const layoutMode = useAppSelector((state) => state.settings.layout.timerView);
 
@@ -47,7 +47,7 @@ export default function HomePage() {
     settings.updateSettings({ layout: { timerView: mode } });
   };
 
-  let content: JSX.Element;
+  let content: ReactNode;
 
   if (layoutMode === "focused") {
     content = (

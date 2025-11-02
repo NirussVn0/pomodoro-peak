@@ -183,6 +183,7 @@ export const SettingsDialog = ({ open, onClose }: SettingsDialogProps) => {
                             settings.updateSettings({
                               tasks: {
                                 autoCompleteOnFocusEnd: !appSettings.tasks.autoCompleteOnFocusEnd,
+                                autoSortCompleted: appSettings.tasks.autoSortCompleted,
                               },
                             })
                           }
@@ -195,7 +196,10 @@ export const SettingsDialog = ({ open, onClose }: SettingsDialogProps) => {
                           checked={appSettings.tasks.autoSortCompleted}
                           onClick={() =>
                             settings.updateSettings({
-                              tasks: { autoSortCompleted: !appSettings.tasks.autoSortCompleted },
+                              tasks: {
+                                autoCompleteOnFocusEnd: appSettings.tasks.autoCompleteOnFocusEnd,
+                                autoSortCompleted: !appSettings.tasks.autoSortCompleted,
+                              },
                             })
                           }
                           aria-label="Toggle moving completed tasks down"
