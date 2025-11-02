@@ -1,7 +1,8 @@
 'use client';
 
+import type { ReactNode } from 'react';
 import { clsx } from 'clsx';
-import { FiPlay, FiPause, FiRotateCcw, FiSettings, FiMaximize2 } from 'react-icons/fi';
+import { FiPlay, FiPause, FiRotateCcw, FiSettings, FiMaximize2, FiSkipForward } from 'react-icons/fi';
 import { TIMER_MODES } from '../../domain/entities/timer';
 import type { TimerMode } from '../../domain/entities/timer';
 import { useAppSelector, useAppServices } from '../context/app-context';
@@ -37,84 +38,112 @@ export const TimerCard = ({ onOpenSettings, variant = 'default' }: TimerCardProp
   const stats = useAppSelector((state) => state.stats.sessionsToday);
   const activeTaskId = useAppSelector((state) => state.activeTaskId);
   const activeTask = useAppSelector((state) => state.tasks.find((task) => task.id === activeTaskId) ?? null);
+  const maximalScale = useAppSelector((state) => state.settings.layout.maximalScale);
 
   const handleModeChange = (mode: TimerMode) => {
     timer.switchMode(mode);
   };
 
+  const totalMs = durations[timerState.mode] * 60 * 1000;
+  const progress = totalMs > 0 ? 1 - Math.max(0, Math.min(timerState.remainingMs, totalMs)) / totalMs : 0;
+  const showDetails = variant !== 'maximal';
+
   return (
     <section
       className={clsx(
         'flex flex-1 flex-col gap-6 rounded-lg border border-subtle bg-surface-card shadow-elevated backdrop-blur-xl',
-        variant === 'maximal' ? 'p-10 xl:p-14' : 'p-6',
+        variant === 'maximal'
+          ? 'mx-auto w-full max-w-3xl items-center justify-center border-white/10 bg-white/5/80 p-12 text-white'
+          : 'p-6',
       )}
     >
-      <header className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <p className="text-sm uppercase tracking-[0.2em] text-muted">Pomodoro</p>
-          <h2 className={clsx('text-2xl font-semibold text-primary', variant === 'maximal' && 'text-4xl')}>
+      <header
+        className={clsx(
+          'flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between',
+          variant === 'maximal' && 'w-full items-center justify-center text-center sm:flex-col',
+        )}
+      >
+        <div className={clsx(variant === 'maximal' && 'space-y-1')}>
+          <p className={clsx('text-sm uppercase tracking-[0.2em] text-muted', variant === 'maximal' && 'text-white/60')}>
+            Pomodoro
+          </p>
+          <h2
+            className={clsx(
+              'text-2xl font-semibold text-primary',
+              variant === 'maximal' && 'text-4xl tracking-tight text-white',
+            )}
+          >
             Stay in the zone
           </h2>
         </div>
-        <Button
-          type="button"
-          variant="secondary"
-          size="sm"
-          icon={<FiSettings className="h-5 w-5" />}
-          onClick={onOpenSettings}
-          className="w-full sm:w-auto"
-        >
-          Settings
-        </Button>
+        <div className={clsx('flex gap-3', variant === 'maximal' && 'justify-center')}>
+          <Button
+            type="button"
+            variant={variant === 'maximal' ? 'ghost' : 'secondary'}
+            size="sm"
+            icon={<FiSettings className="h-5 w-5" />}
+            onClick={onOpenSettings}
+            className={variant === 'maximal' ? 'text-white hover:text-white/80' : 'w-full sm:w-auto'}
+          >
+            Settings
+          </Button>
+        </div>
       </header>
-      <div className="flex items-center gap-2 rounded-lg border border-subtle bg-surface-overlay-soft p-2 text-sm text-muted">
-        {TIMER_MODES.map((mode) => {
-          const isActive = timerState.mode === mode;
-          return (
-            <button
-              key={mode}
-              type="button"
-              onClick={() => handleModeChange(mode)}
-              className={clsx(
-                'flex-1 rounded-lg px-4 py-2 font-medium transition-colors',
-                isActive
-                  ? 'bg-[color:var(--accent-solid)] text-[color:var(--text-inverse)] shadow-[var(--shadow-elevated)]'
-                  : 'text-muted hover:text-primary hover:bg-surface-card',
+      {showDetails ? (
+        <div className="flex items-center gap-2 rounded-lg border border-subtle bg-surface-overlay-soft p-2 text-sm text-muted">
+          {TIMER_MODES.map((mode) => {
+            const isActive = timerState.mode === mode;
+            return (
+              <button
+                key={mode}
+                type="button"
+                onClick={() => handleModeChange(mode)}
+                className={clsx(
+                  'flex-1 rounded-lg px-4 py-2 font-medium transition-colors',
+                  isActive
+                    ? 'bg-[color:var(--accent-solid)] text-[color:var(--text-inverse)] shadow-[var(--shadow-elevated)]'
+                    : 'text-muted hover:text-primary hover:bg-surface-card',
+                )}
+              >
+                {MODE_LABELS[mode]}
+              </button>
+            );
+          })}
+        </div>
+      ) : null}
+      <div className={clsx('flex flex-col items-center justify-center gap-4 py-8 text-center')}>
+        {variant === 'maximal' ? (
+          <SquareProgressFrame progress={progress} scale={maximalScale}>
+            <div className="text-[5rem] font-semibold leading-none tracking-tight text-white sm:text-[5.5rem]">
+              {formatTime(timerState.remainingMs)}
+            </div>
+          </SquareProgressFrame>
+        ) : (
+          <div
+            className="text-[3.5rem] font-semibold leading-none tracking-tight text-primary sm:text-[4rem] lg:text-[4.5rem]"
+          >
+            {formatTime(timerState.remainingMs)}
+          </div>
+        )}
+        {showDetails ? (
+          <div className="flex flex-col items-center gap-1 text-sm text-muted">
+            <span>
+              {timerState.mode === 'focus' ? 'Deep work session' : 'Recharge moment'} · Today: {stats} sessions
+            </span>
+            <span className="text-xs text-muted">
+              {activeTask ? (
+                <>
+                  Focusing on{' '}
+                  <span className="font-medium text-primary">
+                    {activeTask.title}
+                  </span>
+                </>
+              ) : (
+                'No active task selected'
               )}
-            >
-              {MODE_LABELS[mode]}
-            </button>
-          );
-        })}
-      </div>
-      <div className="flex flex-col items-center justify-center gap-4 py-8 text-center">
-        <div
-          className={clsx(
-            'font-semibold leading-none tracking-tight text-primary',
-            variant === 'maximal'
-              ? 'text-[6rem] sm:text-[7rem]'
-              : 'text-[3.5rem] sm:text-[4rem] lg:text-[4.5rem]',
-          )}
-        >
-          {formatTime(timerState.remainingMs)}
-        </div>
-        <div className="flex flex-col items-center gap-1 text-sm text-muted">
-          <span>
-            {timerState.mode === 'focus' ? 'Deep work session' : 'Recharge moment'} · Today: {stats} sessions
-          </span>
-          <span className="text-xs text-muted">
-            {activeTask ? (
-              <>
-                Focusing on{' '}
-                <span className="font-medium text-primary">
-                  {activeTask.title}
-                </span>
-              </>
-            ) : (
-              'No active task selected'
-            )}
-          </span>
-        </div>
+            </span>
+          </div>
+        ) : null}
       </div>
       <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-4">
         <Button
@@ -129,33 +158,44 @@ export const TimerCard = ({ onOpenSettings, variant = 'default' }: TimerCardProp
           type="button"
           variant="secondary"
           size="md"
+          icon={<FiSkipForward className="h-5 w-5" />}
+          onClick={() => timer.skip()}
+        >
+          Skip
+        </Button>
+        <Button
+          type="button"
+          variant="secondary"
+          size="md"
           icon={<FiRotateCcw className="h-5 w-5" />}
           onClick={() => timer.reset()}
         >
           Reset
         </Button>
       </div>
-      <footer className="rounded-lg border border-subtle bg-surface-overlay-soft p-4 text-sm text-muted">
-        <p className="font-medium text-primary">Quick glance</p>
-        <div className="mt-3 grid grid-cols-2 gap-4 text-xs md:grid-cols-4">
-          <div>
-            <p className="text-muted">Focus length</p>
-            <p className="text-primary">{durations.focus} min</p>
+      {showDetails ? (
+        <footer className="rounded-lg border border-subtle bg-surface-overlay-soft p-4 text-sm text-muted">
+          <p className="font-medium text-primary">Quick glance</p>
+          <div className="mt-3 grid grid-cols-2 gap-4 text-xs md:grid-cols-4">
+            <div>
+              <p className="text-muted">Focus length</p>
+              <p className="text-primary">{durations.focus} min</p>
+            </div>
+            <div>
+              <p className="text-muted">Break lengths</p>
+              <p className="text-primary">{durations.shortBreak} / {durations.longBreak} min</p>
+            </div>
+            <div>
+              <p className="text-muted">Auto-start focus</p>
+              <p className="text-primary">{preferences.autoStartFocus ? 'On' : 'Off'}</p>
+            </div>
+            <div>
+              <p className="text-muted">Auto-start breaks</p>
+              <p className="text-primary">{preferences.autoStartBreaks ? 'On' : 'Off'}</p>
+            </div>
           </div>
-          <div>
-            <p className="text-muted">Break lengths</p>
-            <p className="text-primary">{durations.shortBreak} / {durations.longBreak} min</p>
-          </div>
-          <div>
-            <p className="text-muted">Auto-start focus</p>
-            <p className="text-primary">{preferences.autoStartFocus ? 'On' : 'Off'}</p>
-          </div>
-          <div>
-            <p className="text-muted">Auto-start breaks</p>
-            <p className="text-primary">{preferences.autoStartBreaks ? 'On' : 'Off'}</p>
-          </div>
-        </div>
-      </footer>
+        </footer>
+      ) : null}
     </section>
   );
 };
@@ -215,6 +255,14 @@ export const TimerMiniCard = ({ onOpenSettings, onExpand }: TimerMiniCardProps) 
         </button>
         <button
           type="button"
+          onClick={() => timer.skip()}
+          className="flex h-11 w-11 items-center justify-center rounded-full border border-subtle text-muted transition hover:border-[color:var(--accent-ring)] hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--accent-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-[color:var(--surface-page)]"
+          aria-label="Skip phase"
+        >
+          <FiSkipForward className="h-5 w-5" />
+        </button>
+        <button
+          type="button"
           onClick={() => timer.reset()}
           className="flex h-11 w-11 items-center justify-center rounded-full border border-subtle text-muted transition hover:border-[color:var(--accent-ring)] hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--accent-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-[color:var(--surface-page)]"
           aria-label="Reset timer"
@@ -226,5 +274,32 @@ export const TimerMiniCard = ({ onOpenSettings, onExpand }: TimerMiniCardProps) 
         {activeTaskTitle ? `Focus: ${activeTaskTitle}` : 'No active task selected'}
       </p>
     </section>
+  );
+};
+
+const SquareProgressFrame = ({ progress, scale, children }: { readonly progress: number; readonly scale: number; readonly children: ReactNode }) => {
+  const clamped = Math.min(Math.max(progress, 0), 1) * 3;
+  const topFill = Math.min(clamped, 1) * 100;
+  const rightFill = Math.min(Math.max(clamped - 1, 0), 1) * 100;
+  const leftFill = Math.min(Math.max(clamped - 2, 0), 1) * 100;
+  return (
+    <div className="relative flex items-center justify-center" style={{ transform: `scale(${scale})` }}>
+      <div className="absolute inset-0 rounded-[2.5rem] border border-white/15" />
+      <div
+        className="absolute left-0 top-0 h-1.5 rounded-full bg-[color:var(--accent-solid)]"
+        style={{ width: `${topFill}%` }}
+      />
+      <div
+        className="absolute right-0 top-0 w-1.5 rounded-full bg-[color:var(--accent-solid)]"
+        style={{ height: `${rightFill}%` }}
+      />
+      <div
+        className="absolute left-0 bottom-0 w-1.5 rounded-full bg-[color:var(--accent-solid)]"
+        style={{ height: `${leftFill}%` }}
+      />
+      <div className="relative flex flex-col items-center gap-4 rounded-[2rem] border border-white/10 bg-[color:var(--surface-card)] px-12 py-10 shadow-[0_35px_120px_rgba(10,10,45,0.45)] backdrop-blur-xl">
+        {children}
+      </div>
+    </div>
   );
 };

@@ -347,6 +347,31 @@ export const SettingsDialog = ({ open, onClose }: SettingsDialogProps) => {
                       </label>
                     </div>
                   </div>
+                  <div className="rounded-lg border border-subtle bg-surface-overlay-soft p-5 md:col-span-2">
+                    <h3 className="text-sm font-semibold uppercase tracking-wide text-muted">Layout</h3>
+                    <div className="mt-4 flex flex-col gap-4 text-sm text-primary">
+                      <label className="flex flex-col gap-2">
+                        <span>Maximal timer size</span>
+                        <div className="flex items-center gap-3">
+                          <input
+                            type="range"
+                            min={70}
+                            max={140}
+                            value={Math.round(appSettings.layout.maximalScale * 100)}
+                            onChange={(event) =>
+                              settings.updateSettings({
+                                layout: { maximalScale: Number(event.target.value) / 100 },
+                              })
+                            }
+                            className="flex-1"
+                          />
+                          <span className="w-12 text-right text-xs text-muted">
+                            {Math.round(appSettings.layout.maximalScale * 100)}%
+                          </span>
+                        </div>
+                      </label>
+                    </div>
+                  </div>
                 </section>
 
                 <div className="mt-8 flex justify-end">

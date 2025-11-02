@@ -16,6 +16,7 @@ export type TimerViewMode = 'split' | 'maximal' | 'mini';
 
 export interface LayoutSettings {
   readonly timerView: TimerViewMode;
+  readonly maximalScale: number;
 }
 
 export interface TaskSettings {
@@ -54,6 +55,7 @@ export const DEFAULT_TASK_SETTINGS: TaskSettings = {
 
 export const DEFAULT_LAYOUT_SETTINGS: LayoutSettings = {
   timerView: 'split',
+  maximalScale: 1,
 };
 
 export const DEFAULT_APP_SETTINGS: AppSettings = {

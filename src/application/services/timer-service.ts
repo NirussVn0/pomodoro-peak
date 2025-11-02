@@ -42,6 +42,20 @@ export class TimerService {
     this.lastTickAt = undefined;
   }
 
+  skip(): void {
+    const state = this.store.getState();
+    const currentMode = state.timer.state.mode;
+    const nextMode = cycleMode(currentMode);
+    const now = this.time.now();
+    this.store.dispatch({ type: 'timer/set-mode', timestamp: now, mode: nextMode });
+    this.lastTickAt = undefined;
+    const prefs = this.store.getState().timer.config.preferences;
+    const shouldAutoStart = nextMode === 'focus' ? prefs.autoStartFocus : prefs.autoStartBreaks;
+    if (shouldAutoStart) {
+      this.start();
+    }
+  }
+
   switchMode(mode: TimerMode): void {
     const now = this.time.now();
     this.store.dispatch({ type: 'timer/set-mode', timestamp: now, mode });
