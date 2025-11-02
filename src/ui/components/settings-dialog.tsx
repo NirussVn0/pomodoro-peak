@@ -31,11 +31,24 @@ const defaultBackgroundByKind: Record<BackgroundKind, BackgroundSettings> = DEFA
   } as Record<BackgroundKind, BackgroundSettings>,
 );
 
+const keyboardShortcuts = [
+  { key: 'Space', action: 'Start / Pause timer' },
+  { key: 'R', action: 'Reset timer' },
+  { key: '1', action: 'Switch to focus' },
+  { key: '2', action: 'Switch to short break' },
+  { key: '3', action: 'Switch to long break' },
+  { key: 'P', action: 'Cycle timer mode' },
+  { key: 'N', action: 'Add new task' },
+  { key: 'S', action: 'Open settings' },
+  { key: 'T', action: 'Open templates' },
+];
+
 export const SettingsDialog = ({ open, onClose }: SettingsDialogProps) => {
   const { timer, settings } = useAppServices();
   const durations = useAppSelector((state) => state.timer.config.durations);
   const preferences = useAppSelector((state) => state.timer.config.preferences);
   const appSettings = useAppSelector((state) => state.settings);
+  const layoutSettings = appSettings.layout as typeof appSettings.layout & { maximalScale: number };
   const [backgroundValue, setBackgroundValue] = useState(
     appSettings.background.value ?? defaultBackgroundByKind[appSettings.background.kind].value,
   );
@@ -255,7 +268,7 @@ export const SettingsDialog = ({ open, onClose }: SettingsDialogProps) => {
                           ))}
                         </div>
                       </div>
-                      <div className="flex flex-wrap items-center gap-3">
+                    <div className="flex flex-wrap items-center gap-3">
                         {backgroundKinds.map((item) => {
                           const isActive = appSettings.background.kind === item.value;
                           return (
@@ -347,29 +360,50 @@ export const SettingsDialog = ({ open, onClose }: SettingsDialogProps) => {
                       </label>
                     </div>
                   </div>
+                  {layoutSettings.timerView === 'maximal' ? (
+                    <div className="rounded-lg border border-subtle bg-surface-overlay-soft p-5 md:col-span-2">
+                      <h3 className="text-sm font-semibold uppercase tracking-wide text-muted">Maximal timer</h3>
+                      <div className="mt-4 flex flex-col gap-4 text-sm text-primary">
+                        <label className="flex flex-col gap-2">
+                          <span>Clock scale</span>
+                          <div className="flex items-center gap-3">
+                            <input
+                              type="range"
+                              min={70}
+                              max={140}
+                              value={Math.round(layoutSettings.maximalScale * 100)}
+                              onChange={(event) =>
+                                settings.updateSettings({
+                                  layout: {
+                                    ...layoutSettings,
+                                    maximalScale: Number(event.target.value) / 100,
+                                  },
+                                })
+                              }
+                              className="flex-1"
+                            />
+                            <span className="w-12 text-right text-xs text-muted">
+                              {Math.round(layoutSettings.maximalScale * 100)}%
+                            </span>
+                          </div>
+                        </label>
+                      </div>
+                    </div>
+                  ) : null}
                   <div className="rounded-lg border border-subtle bg-surface-overlay-soft p-5 md:col-span-2">
-                    <h3 className="text-sm font-semibold uppercase tracking-wide text-muted">Layout</h3>
-                    <div className="mt-4 flex flex-col gap-4 text-sm text-primary">
-                      <label className="flex flex-col gap-2">
-                        <span>Maximal timer size</span>
-                        <div className="flex items-center gap-3">
-                          <input
-                            type="range"
-                            min={70}
-                            max={140}
-                            value={Math.round(appSettings.layout.maximalScale * 100)}
-                            onChange={(event) =>
-                              settings.updateSettings({
-                                layout: { maximalScale: Number(event.target.value) / 100 },
-                              })
-                            }
-                            className="flex-1"
-                          />
-                          <span className="w-12 text-right text-xs text-muted">
-                            {Math.round(appSettings.layout.maximalScale * 100)}%
+                    <h3 className="text-sm font-semibold uppercase tracking-wide text-muted">Keyboard shortcuts</h3>
+                    <div className="mt-4 grid gap-3 text-sm text-primary">
+                      {keyboardShortcuts.map((item) => (
+                        <div
+                          key={item.key}
+                          className="flex items-center justify-between rounded-xl border border-subtle bg-surface-overlay-soft px-4 py-3"
+                        >
+                          <span className="rounded-lg border border-subtle bg-surface-card px-3 py-1 font-semibold">
+                            {item.key}
                           </span>
+                          <span className="text-muted">{item.action}</span>
                         </div>
-                      </label>
+                      ))}
                     </div>
                   </div>
                 </section>

@@ -12,7 +12,7 @@ import {
 } from '../../domain/entities/timer';
 import type { Task, SubTask, TaskTemplate } from '../../domain/entities/task';
 import { DEFAULT_TEMPLATES, createEmptyTask, createSubtask } from '../../domain/entities/task';
-import type { AppSettings } from '../../domain/value-objects/settings';
+import type { AppSettings, LayoutSettings } from '../../domain/value-objects/settings';
 import { DEFAULT_APP_SETTINGS } from '../../domain/value-objects/settings';
 import type { BackgroundSettings } from '../../domain/value-objects/background';
 import { TimerAggregate } from '../../domain/aggregates/timer-aggregate';
@@ -25,6 +25,13 @@ export interface AppState {
   readonly templates: readonly TaskTemplate[];
   readonly settings: AppSettings;
   readonly activeTaskId: string | null;
+  readonly commitLog: readonly {
+    readonly id: string;
+    readonly taskId: string;
+    readonly targetId: string;
+    readonly target: 'task' | 'subtask';
+    readonly timestamp: number;
+  }[];
 }
 
 export const defaultAppState = (): AppState => ({
@@ -37,11 +44,18 @@ export const defaultAppState = (): AppState => ({
     background: { ...DEFAULT_APP_SETTINGS.background },
   },
   activeTaskId: null,
+  commitLog: [],
 });
 
 type TaskUpdate = Partial<Omit<Task, 'id' | 'subtasks' | 'tags'>> & {
   readonly subtasks?: readonly SubTask[];
   readonly tags?: Task['tags'];
+};
+
+type PartialLayoutSettings = Partial<LayoutSettings>;
+
+type PartialAppSettings = Partial<Omit<AppSettings, 'layout'>> & {
+  readonly layout?: PartialLayoutSettings;
 };
 
 export type AppAction =
@@ -75,10 +89,20 @@ export type AppAction =
       readonly taskId: string;
       readonly subtasks: readonly SubTask[];
     }
-  | { readonly type: 'settings/update'; readonly settings: Partial<AppSettings> }
+  | { readonly type: 'settings/update'; readonly settings: PartialAppSettings }
   | { readonly type: 'settings/update-background'; readonly background: BackgroundSettings }
   | { readonly type: 'templates/upsert'; readonly template: TaskTemplate }
-  | { readonly type: 'templates/remove'; readonly id: string };
+  | { readonly type: 'templates/remove'; readonly id: string }
+  | {
+      readonly type: 'commits/log';
+      readonly entry: {
+        readonly id: string;
+        readonly taskId: string;
+        readonly targetId: string;
+        readonly target: 'task' | 'subtask';
+        readonly timestamp: number;
+      };
+    };
 
 export const appReducer = (state: AppState, action: AppAction): AppState => {
   switch (action.type) {
@@ -208,6 +232,11 @@ export const appReducer = (state: AppState, action: AppAction): AppState => {
       return {
         ...state,
         templates: state.templates.filter((template) => template.id !== action.id),
+      };
+    case 'commits/log':
+      return {
+        ...state,
+        commitLog: [...state.commitLog, action.entry],
       };
     default:
       return state;

@@ -52,6 +52,9 @@ export class TodoService {
       id,
       update: { completed: nextCompleted, subtasks: nextSubtasks },
     });
+    if (nextCompleted) {
+      this.logCommit({ taskId: id, targetId: id, target: 'task' });
+    }
     this.applyAutoSort();
     this.syncActiveTask();
   }
@@ -101,6 +104,9 @@ export class TodoService {
       taskId,
       subtask: { ...subtask, completed: !subtask.completed },
     });
+    if (!subtask.completed) {
+      this.logCommit({ taskId, targetId: subtaskId, target: 'subtask' });
+    }
     this.syncActiveTask();
   }
 
@@ -185,5 +191,18 @@ export class TodoService {
     }
     const next = state.tasks.find((item) => !item.completed);
     this.store.dispatch({ type: 'tasks/set-active', id: next ? next.id : null });
+  }
+
+  private logCommit(params: { taskId: string; targetId: string; target: 'task' | 'subtask' }): void {
+    this.store.dispatch({
+      type: 'commits/log',
+      entry: {
+        id: this.uuid.generate(),
+        taskId: params.taskId,
+        targetId: params.targetId,
+        target: params.target,
+        timestamp: this.time.now(),
+      },
+    });
   }
 }

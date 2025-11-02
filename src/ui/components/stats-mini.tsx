@@ -1,12 +1,13 @@
 'use client';
 
+import type { JSX } from 'react';
 import { useAppSelector } from '../context/app-context';
 
 interface StatsMiniProps {
   readonly variant?: 'default' | 'compact';
 }
 
-export const StatsMini = ({ variant = 'default' }: StatsMiniProps) => {
+export const StatsMini = ({ variant = 'default' }: StatsMiniProps): JSX.Element => {
   const stats = useAppSelector((state) => state.stats);
   const tasks = useAppSelector((state) => state.tasks);
   const completed = tasks.filter((task) => task.completed).length;

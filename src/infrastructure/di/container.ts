@@ -66,6 +66,7 @@ const mergeState = (stored: AppState | null): AppState => {
     },
     templates: stored.templates?.length ? stored.templates : defaults.templates,
     activeTaskId: stored.activeTaskId ?? defaults.activeTaskId,
+    commitLog: stored.commitLog ?? defaults.commitLog,
   };
 };
 

@@ -1,8 +1,9 @@
 'use client';
 
-import type { ReactNode } from 'react';
 import { clsx } from 'clsx';
+import type { ReactNode } from 'react';
 import { FiPlay, FiPause, FiRotateCcw, FiSettings, FiMaximize2, FiSkipForward } from 'react-icons/fi';
+import { cycleMode } from '../../application/state/app-reducer';
 import { TIMER_MODES } from '../../domain/entities/timer';
 import type { TimerMode } from '../../domain/entities/timer';
 import { useAppSelector, useAppServices } from '../context/app-context';
@@ -40,54 +41,62 @@ export const TimerCard = ({ onOpenSettings, variant = 'default' }: TimerCardProp
   const activeTask = useAppSelector((state) => state.tasks.find((task) => task.id === activeTaskId) ?? null);
   const maximalScale = useAppSelector((state) => state.settings.layout.maximalScale);
 
+  const showDetails = variant !== 'maximal';
+
   const handleModeChange = (mode: TimerMode) => {
     timer.switchMode(mode);
   };
 
   const totalMs = durations[timerState.mode] * 60 * 1000;
   const progress = totalMs > 0 ? 1 - Math.max(0, Math.min(timerState.remainingMs, totalMs)) / totalMs : 0;
-  const showDetails = variant !== 'maximal';
+
+  const handleSkip = () => {
+    const nextMode = cycleMode(timerState.mode);
+    timer.switchMode(nextMode);
+    const shouldAutoStart = nextMode === 'focus' ? preferences.autoStartFocus : preferences.autoStartBreaks;
+    if (shouldAutoStart) {
+      timer.start();
+    }
+  };
 
   return (
     <section
       className={clsx(
-        'flex flex-1 flex-col gap-6 rounded-lg border border-subtle bg-surface-card shadow-elevated backdrop-blur-xl',
-        variant === 'maximal'
-          ? 'mx-auto w-full max-w-3xl items-center justify-center border-white/10 bg-white/5/80 p-12 text-white'
-          : 'p-6',
+        'flex flex-1 flex-col gap-6 rounded-3xl border border-subtle bg-surface-card shadow-elevated backdrop-blur-xl',
+        showDetails ? 'p-6' : 'mx-auto w-full max-w-3xl items-center justify-center border-white/15 bg-white/5/80 p-12 text-white',
       )}
     >
       <header
         className={clsx(
           'flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between',
-          variant === 'maximal' && 'w-full items-center justify-center text-center sm:flex-col',
+          showDetails ? '' : 'w-full items-center justify-center text-center sm:flex-col',
         )}
       >
-        <div className={clsx(variant === 'maximal' && 'space-y-1')}>
-          <p className={clsx('text-sm uppercase tracking-[0.2em] text-muted', variant === 'maximal' && 'text-white/60')}>
+        <div className={clsx(showDetails ? '' : 'space-y-1')}>
+          <p className={clsx('text-sm uppercase tracking-[0.2em] text-muted', showDetails ? '' : 'text-white/60')}>
             Pomodoro
           </p>
           <h2
             className={clsx(
               'text-2xl font-semibold text-primary',
-              variant === 'maximal' && 'text-4xl tracking-tight text-white',
+              showDetails ? '' : 'text-4xl tracking-tight text-white',
             )}
           >
             Stay in the zone
           </h2>
         </div>
-        <div className={clsx('flex gap-3', variant === 'maximal' && 'justify-center')}>
+        {showDetails ? (
           <Button
             type="button"
-            variant={variant === 'maximal' ? 'ghost' : 'secondary'}
+            variant="secondary"
             size="sm"
             icon={<FiSettings className="h-5 w-5" />}
             onClick={onOpenSettings}
-            className={variant === 'maximal' ? 'text-white hover:text-white/80' : 'w-full sm:w-auto'}
+            className="w-full sm:w-auto"
           >
             Settings
           </Button>
-        </div>
+        ) : null}
       </header>
       {showDetails ? (
         <div className="flex items-center gap-2 rounded-lg border border-subtle bg-surface-overlay-soft p-2 text-sm text-muted">
@@ -111,19 +120,17 @@ export const TimerCard = ({ onOpenSettings, variant = 'default' }: TimerCardProp
           })}
         </div>
       ) : null}
-      <div className={clsx('flex flex-col items-center justify-center gap-4 py-8 text-center')}>
-        {variant === 'maximal' ? (
+      <div className="flex flex-col items-center justify-center gap-6 py-6 text-center">
+        {showDetails ? (
+          <div className="text-[3.5rem] font-semibold leading-none tracking-tight text-primary sm:text-[4rem] lg:text-[4.5rem]">
+            {formatTime(timerState.remainingMs)}
+          </div>
+        ) : (
           <SquareProgressFrame progress={progress} scale={maximalScale}>
             <div className="text-[5rem] font-semibold leading-none tracking-tight text-white sm:text-[5.5rem]">
               {formatTime(timerState.remainingMs)}
             </div>
           </SquareProgressFrame>
-        ) : (
-          <div
-            className="text-[3.5rem] font-semibold leading-none tracking-tight text-primary sm:text-[4rem] lg:text-[4.5rem]"
-          >
-            {formatTime(timerState.remainingMs)}
-          </div>
         )}
         {showDetails ? (
           <div className="flex flex-col items-center gap-1 text-sm text-muted">
@@ -145,12 +152,13 @@ export const TimerCard = ({ onOpenSettings, variant = 'default' }: TimerCardProp
           </div>
         ) : null}
       </div>
-      <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-4">
+      <div className={clsx('flex flex-wrap items-center justify-center gap-3 sm:gap-4', showDetails ? '' : 'gap-4')}>
         <Button
           type="button"
           size="lg"
           onClick={() => (timerState.isRunning ? timer.pause() : timer.start())}
           icon={timerState.isRunning ? <FiPause className="h-6 w-6" /> : <FiPlay className="h-6 w-6" />}
+          className={showDetails ? '' : 'px-10 text-lg'}
         >
           {timerState.isRunning ? 'Pause' : 'Start'}
         </Button>
@@ -159,7 +167,8 @@ export const TimerCard = ({ onOpenSettings, variant = 'default' }: TimerCardProp
           variant="secondary"
           size="md"
           icon={<FiSkipForward className="h-5 w-5" />}
-          onClick={() => timer.skip()}
+          onClick={handleSkip}
+          className={showDetails ? '' : 'border-white/30 bg-white/10 text-white hover:bg-white/20'}
         >
           Skip
         </Button>
@@ -169,6 +178,7 @@ export const TimerCard = ({ onOpenSettings, variant = 'default' }: TimerCardProp
           size="md"
           icon={<FiRotateCcw className="h-5 w-5" />}
           onClick={() => timer.reset()}
+          className={showDetails ? '' : 'border-white/30 bg-white/10 text-white hover:bg-white/20'}
         >
           Reset
         </Button>
@@ -209,10 +219,20 @@ export const TimerMiniCard = ({ onOpenSettings, onExpand }: TimerMiniCardProps) 
   const { timer } = useAppServices();
   useTimerController();
   const timerState = useAppSelector((state) => state.timer.state);
+  const preferences = useAppSelector((state) => state.timer.config.preferences);
   const activeTaskTitle = useAppSelector((state) => {
     const task = state.tasks.find((item) => item.id === state.activeTaskId);
     return task ? task.title : null;
   });
+
+  const handleSkip = () => {
+    const nextMode = cycleMode(timerState.mode);
+    timer.switchMode(nextMode);
+    const shouldAutoStart = nextMode === 'focus' ? preferences.autoStartFocus : preferences.autoStartBreaks;
+    if (shouldAutoStart) {
+      timer.start();
+    }
+  };
 
   return (
     <section className="w-72 rounded-2xl border border-subtle bg-surface-card p-5 shadow-elevated backdrop-blur-xl">
@@ -255,7 +275,7 @@ export const TimerMiniCard = ({ onOpenSettings, onExpand }: TimerMiniCardProps) 
         </button>
         <button
           type="button"
-          onClick={() => timer.skip()}
+          onClick={handleSkip}
           className="flex h-11 w-11 items-center justify-center rounded-full border border-subtle text-muted transition hover:border-[color:var(--accent-ring)] hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--accent-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-[color:var(--surface-page)]"
           aria-label="Skip phase"
         >
@@ -284,20 +304,11 @@ const SquareProgressFrame = ({ progress, scale, children }: { readonly progress:
   const leftFill = Math.min(Math.max(clamped - 2, 0), 1) * 100;
   return (
     <div className="relative flex items-center justify-center" style={{ transform: `scale(${scale})` }}>
-      <div className="absolute inset-0 rounded-[2.5rem] border border-white/15" />
-      <div
-        className="absolute left-0 top-0 h-1.5 rounded-full bg-[color:var(--accent-solid)]"
-        style={{ width: `${topFill}%` }}
-      />
-      <div
-        className="absolute right-0 top-0 w-1.5 rounded-full bg-[color:var(--accent-solid)]"
-        style={{ height: `${rightFill}%` }}
-      />
-      <div
-        className="absolute left-0 bottom-0 w-1.5 rounded-full bg-[color:var(--accent-solid)]"
-        style={{ height: `${leftFill}%` }}
-      />
-      <div className="relative flex flex-col items-center gap-4 rounded-[2rem] border border-white/10 bg-[color:var(--surface-card)] px-12 py-10 shadow-[0_35px_120px_rgba(10,10,45,0.45)] backdrop-blur-xl">
+      <div className="absolute inset-0 rounded-[32px] border border-white/15" />
+      <div className="absolute left-0 top-0 h-1.5 rounded-full bg-[color:var(--accent-solid)]" style={{ width: `${topFill}%` }} />
+      <div className="absolute right-0 top-0 w-1.5 rounded-full bg-[color:var(--accent-solid)]" style={{ height: `${rightFill}%` }} />
+      <div className="absolute left-0 bottom-0 w-1.5 rounded-full bg-[color:var(--accent-solid)]" style={{ height: `${leftFill}%` }} />
+      <div className="relative flex flex-col items-center gap-4 rounded-[28px] border border-white/10 bg-[color:var(--surface-card)]/70 px-12 py-10 shadow-[0_35px_120px_rgba(10,10,45,0.45)] backdrop-blur-xl">
         {children}
       </div>
     </div>

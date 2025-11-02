@@ -42,20 +42,6 @@ export class TimerService {
     this.lastTickAt = undefined;
   }
 
-  skip(): void {
-    const state = this.store.getState();
-    const currentMode = state.timer.state.mode;
-    const nextMode = cycleMode(currentMode);
-    const now = this.time.now();
-    this.store.dispatch({ type: 'timer/set-mode', timestamp: now, mode: nextMode });
-    this.lastTickAt = undefined;
-    const prefs = this.store.getState().timer.config.preferences;
-    const shouldAutoStart = nextMode === 'focus' ? prefs.autoStartFocus : prefs.autoStartBreaks;
-    if (shouldAutoStart) {
-      this.start();
-    }
-  }
-
   switchMode(mode: TimerMode): void {
     const now = this.time.now();
     this.store.dispatch({ type: 'timer/set-mode', timestamp: now, mode });
@@ -106,6 +92,29 @@ export class TimerService {
           type: 'tasks/update',
           id: task.id,
           update: { completed: true, subtasks },
+        });
+        const commitTimestamp = this.time.now();
+        this.store.dispatch({
+          type: 'commits/log',
+          entry: {
+            id: `${task.id}-${commitTimestamp}`,
+            taskId: task.id,
+            targetId: task.id,
+            target: 'task',
+            timestamp: commitTimestamp,
+          },
+        });
+        subtasks.forEach((subtask) => {
+          this.store.dispatch({
+            type: 'commits/log',
+            entry: {
+              id: `${subtask.id}-${commitTimestamp}`,
+              taskId: task.id,
+              targetId: subtask.id,
+              target: 'subtask',
+              timestamp: commitTimestamp,
+            },
+          });
         });
         if (state.settings.tasks.autoSortCompleted) {
           const orderedIds = this.store
