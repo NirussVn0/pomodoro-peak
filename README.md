@@ -14,20 +14,20 @@ The Pomodoro Technique is a time management method developed by Francesco Cirill
 ### Wisit [Live Demo](https://sabicoder.xyz/pomodoro/)
 
 ## 💻 Goal Features
-- [v] **Classic Pomodoro Timer** - ⏰ 25-minute work intervals with 5-minute breaks
-- [v] **Progress Visualization** - visual representation of your work and break intervals 
-- [v] **Progress Tracking** - Monitor your productivity over time
-- [v] **Customizable Alerts** - Visual and audio notifications
-- [v] **Dark Mode** - Easy on the eyes during late-night work sessions
-- [v] **Todolist** - Add tasks to your to-do list and mark them as complete
-- [v] **Template list** - Save a template list of tasks
-- [v] **Change time** - Change the work and break time to suit your needs
-- [v] **Keyboard Shortcuts** - Shortcuts to start, stop, and reset the timer
-- [v] **Customizable background** - Change background
-- [v] **Customizable color** - Change the color, blur, opacity of the timer
-- [v] **Responsive** - Responsive design all devices
-- [x] **Contribute API** - Add your own API to the web
-- [x] **Sign in with Google** - Sign in with your Google account
+- [x] **Classic Pomodoro Timer** - ⏰ 25-minute work intervals with 5-minute breaks
+- [x] **Progress Visualization** - visual representation of your work and break intervals 
+- [x] **Progress Tracking** - Monitor your productivity over time
+- [x] **Customizable Alerts** - Visual and audio notifications
+- [x] **Dark Mode** - Easy on the eyes during late-night work sessions
+- [x] **Todolist** - Add tasks to your to-do list and mark them as complete
+- [x] **Template list** - Save a template list of tasks
+- [x] **Change time** - Change the work and break time to suit your needs
+- [x] **Keyboard Shortcuts** - Shortcuts to start, stop, and reset the timer
+- [x] **Customizable background** - Change background
+- [x] **Customizable color** - Change the color, blur, opacity of the timer
+- [x] **Responsive** - Responsive design all devices
+- [o] **Contribute API** - Add your own API to the web
+- [o] **Sign in with Google** - Sign in with your Google account
 
 ## 🛠️ Getting Started
 
