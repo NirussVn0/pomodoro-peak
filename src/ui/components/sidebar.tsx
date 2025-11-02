@@ -2,11 +2,13 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { FiClock, FiSettings, FiLayers, FiUser } from 'react-icons/fi';
+import { FiClock, FiSettings, FiLayers, FiUser, FiX } from 'react-icons/fi';
 import { clsx } from 'clsx';
 
 interface SidebarProps {
   readonly onOpenSettings: () => void;
+  readonly open: boolean;
+  readonly onClose: () => void;
 }
 
 const navItems = [
@@ -14,52 +16,79 @@ const navItems = [
   { href: '/templates', icon: FiLayers, label: 'Templates' },
 ];
 
-const iconButtonClasses =
-  'flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-lg border border-subtle text-muted transition-colors hover:border-[color:var(--accent-ring)] hover:text-primary';
-
 const activeNavClasses =
   'border-[color:var(--accent-ring)] bg-[color:var(--accent-solid)] text-[color:var(--text-inverse)] shadow-[var(--shadow-elevated)]';
 
-export const Sidebar = ({ onOpenSettings }: SidebarProps) => {
+export const Sidebar = ({ onOpenSettings, open, onClose }: SidebarProps) => {
   const pathname = usePathname();
 
   return (
-    <aside className="flex w-full flex-nowrap items-center gap-3 overflow-x-auto rounded-lg border border-subtle bg-surface-card px-3 py-2 shadow-elevated backdrop-blur-xl sm:gap-4 sm:px-4 sm:py-3 xl:h-full xl:w-24 xl:flex-col xl:items-center xl:gap-4 xl:overflow-visible xl:px-2 xl:py-6">
-      <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-lg bg-[color:var(--accent-solid)] text-lg font-semibold text-[color:var(--text-inverse)] shadow-[var(--shadow-elevated)]">
-        SOV
-      </div>
-
-      <nav className="flex flex-1 shrink-0 min-w-max items-center justify-center gap-3 xl:flex-1 xl:shrink xl:flex-col xl:justify-start xl:gap-4 xl:min-w-0">
-        {navItems.map((item) => {
-          const Icon = item.icon;
-          const isActive = pathname === item.href;
-          return (
-            <Link
-              key={item.href}
-              href={item.href}
-              className={clsx('group', iconButtonClasses, isActive && activeNavClasses)}
-              aria-label={item.label}
-            >
-              <Icon className="h-6 w-6" />
-            </Link>
-          );
-        })}
-      </nav>
-      <button
-        type="button"
-        onClick={onOpenSettings}
-        className={iconButtonClasses}
-        aria-label="Open settings"
+    <>
+      <div
+        className={clsx(
+          'fixed inset-0 z-40 bg-black/50 backdrop-blur-sm transition-opacity duration-200',
+          open ? 'opacity-100' : 'pointer-events-none opacity-0',
+        )}
+        onClick={onClose}
+      />
+      <aside
+        className={clsx(
+          'fixed left-4 top-4 z-50 flex w-72 max-w-[90vw] flex-col gap-5 rounded-2xl border border-subtle bg-surface-card p-5 shadow-elevated backdrop-blur-xl transition-transform duration-300',
+          open ? 'translate-x-0 opacity-100' : '-translate-x-[calc(100%+3rem)] opacity-0',
+        )}
       >
-        <FiSettings className="h-6 w-6" />
-      </button>
-      <button
-        type="button"
-        className={iconButtonClasses}
-        aria-label="Profile"
-      >
-        <FiUser className="h-6 w-6" />
-      </button>
-    </aside>
+        <div className="flex items-center justify-between">
+          <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-[color:var(--accent-solid)] text-lg font-semibold text-[color:var(--text-inverse)] shadow-[var(--shadow-elevated)]">
+            SOV
+          </div>
+          <button
+            type="button"
+            onClick={onClose}
+            className="flex h-10 w-10 items-center justify-center rounded-full border border-subtle text-muted transition hover:border-[color:var(--accent-ring)] hover:text-primary"
+            aria-label="Close navigation"
+          >
+            <FiX className="h-5 w-5" />
+          </button>
+        </div>
+        <nav className="flex flex-1 flex-col gap-3">
+          {navItems.map((item) => {
+            const Icon = item.icon;
+            const isActive = pathname === item.href;
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                onClick={onClose}
+                className={clsx(
+                  'flex items-center gap-3 rounded-xl border border-subtle px-3 py-2 text-sm font-medium text-muted transition hover:border-[color:var(--accent-ring)] hover:text-primary',
+                  isActive && activeNavClasses,
+                )}
+              >
+                <Icon className="h-5 w-5" />
+                <span>{item.label}</span>
+              </Link>
+            );
+          })}
+        </nav>
+        <div className="flex items-center justify-between gap-2">
+          <button
+            type="button"
+            onClick={onOpenSettings}
+            className="flex flex-1 items-center justify-center gap-2 rounded-xl border border-subtle px-3 py-2 text-sm text-muted transition hover:border-[color:var(--accent-ring)] hover:text-primary"
+            aria-label="Open settings"
+          >
+            <FiSettings className="h-5 w-5" />
+            <span>Settings</span>
+          </button>
+          <button
+            type="button"
+            className="flex h-11 w-11 items-center justify-center rounded-xl border border-subtle text-muted transition hover:border-[color:var(--accent-ring)] hover:text-primary"
+            aria-label="Profile"
+          >
+            <FiUser className="h-5 w-5" />
+          </button>
+        </div>
+      </aside>
+    </>
   );
 };

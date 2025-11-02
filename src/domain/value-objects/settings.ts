@@ -12,7 +12,7 @@ export interface ShortcutConfig {
   readonly enabled: boolean;
 }
 
-export type TimerViewMode = 'split' | 'focused' | 'mini';
+export type TimerViewMode = 'split' | 'maximal' | 'mini';
 
 export interface LayoutSettings {
   readonly timerView: TimerViewMode;

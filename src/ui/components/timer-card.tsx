@@ -25,7 +25,7 @@ const MODE_LABELS: Record<TimerMode, string> = {
 
 interface TimerCardProps {
   readonly onOpenSettings: () => void;
-  readonly variant?: 'default' | 'focused';
+  readonly variant?: 'default' | 'maximal';
 }
 
 export const TimerCard = ({ onOpenSettings, variant = 'default' }: TimerCardProps) => {
@@ -46,13 +46,13 @@ export const TimerCard = ({ onOpenSettings, variant = 'default' }: TimerCardProp
     <section
       className={clsx(
         'flex flex-1 flex-col gap-6 rounded-lg border border-subtle bg-surface-card shadow-elevated backdrop-blur-xl',
-        variant === 'focused' ? 'p-8' : 'p-6',
+        variant === 'maximal' ? 'p-10 xl:p-14' : 'p-6',
       )}
     >
       <header className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <p className="text-sm uppercase tracking-[0.2em] text-muted">Pomodoro</p>
-          <h2 className={clsx('text-2xl font-semibold text-primary', variant === 'focused' && 'text-3xl')}>
+          <h2 className={clsx('text-2xl font-semibold text-primary', variant === 'maximal' && 'text-4xl')}>
             Stay in the zone
           </h2>
         </div>
@@ -91,8 +91,8 @@ export const TimerCard = ({ onOpenSettings, variant = 'default' }: TimerCardProp
         <div
           className={clsx(
             'font-semibold leading-none tracking-tight text-primary',
-            variant === 'focused'
-              ? 'text-[4.5rem] sm:text-[5rem]'
+            variant === 'maximal'
+              ? 'text-[6rem] sm:text-[7rem]'
               : 'text-[3.5rem] sm:text-[4rem] lg:text-[4.5rem]',
           )}
         >
@@ -161,8 +161,8 @@ export const TimerCard = ({ onOpenSettings, variant = 'default' }: TimerCardProp
 };
 
 interface TimerMiniCardProps {
-  readonly onOpenSettings: () => void;
-  readonly onExpand: (mode: 'split' | 'focused') => void;
+  readonly onOpenSettings?: () => void;
+  readonly onExpand?: (mode: 'split' | 'maximal') => void;
 }
 
 export const TimerMiniCard = ({ onOpenSettings, onExpand }: TimerMiniCardProps) => {
@@ -182,22 +182,26 @@ export const TimerMiniCard = ({ onOpenSettings, onExpand }: TimerMiniCardProps) 
           <p className="text-3xl font-semibold text-primary">{formatTime(timerState.remainingMs)}</p>
         </div>
         <div className="flex items-center gap-2">
-          <button
-            type="button"
-            onClick={onOpenSettings}
-            className="flex h-9 w-9 items-center justify-center rounded-full border border-subtle text-muted transition hover:border-[color:var(--accent-ring)] hover:text-primary"
-            aria-label="Open settings"
-          >
-            <FiSettings className="h-4 w-4" />
-          </button>
-          <button
-            type="button"
-            onClick={() => onExpand('focused')}
-            className="flex h-9 w-9 items-center justify-center rounded-full border border-subtle text-muted transition hover:border-[color:var(--accent-ring)] hover:text-primary"
-            aria-label="Expand timer"
-          >
-            <FiMaximize2 className="h-4 w-4" />
-          </button>
+          {onOpenSettings ? (
+            <button
+              type="button"
+              onClick={onOpenSettings}
+              className="flex h-9 w-9 items-center justify-center rounded-full border border-subtle text-muted transition hover:border-[color:var(--accent-ring)] hover:text-primary"
+              aria-label="Open settings"
+            >
+              <FiSettings className="h-4 w-4" />
+            </button>
+          ) : null}
+          {onExpand ? (
+            <button
+              type="button"
+              onClick={() => onExpand('maximal')}
+              className="flex h-9 w-9 items-center justify-center rounded-full border border-subtle text-muted transition hover:border-[color:var(--accent-ring)] hover:text-primary"
+              aria-label="Expand timer"
+            >
+              <FiMaximize2 className="h-4 w-4" />
+            </button>
+          ) : null}
         </div>
       </div>
       <div className="mt-4 flex items-center gap-3">
