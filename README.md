@@ -68,7 +68,7 @@ Distributed under the MIT License. See [LICENSE](LICENSE) for more information.
 ## 🤝 Contribute
 > If you want to contribute, please open a pull request or create an issue.
 
-- [NirussVn0](niruss-nou-dev.xyz)
+- [NirussVn0](sabicoder.xyz)
 - Project Link: [https://github.com/NirussVn0/pomodoro-peak](https://github.com/NirussVn0/pomodoro-peak)
 
 ## 🙏 Acknowledgements
