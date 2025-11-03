@@ -163,9 +163,10 @@ export const TimerCard = ({ onOpenSettings, variant = 'default' }: TimerCardProp
 interface TimerMiniCardProps {
   readonly onOpenSettings?: () => void;
   readonly onExpand?: (mode: 'split' | 'maximal') => void;
+  readonly onPopOut?: () => void;
 }
 
-export const TimerMiniCard = ({ onOpenSettings, onExpand }: TimerMiniCardProps) => {
+export const TimerMiniCard = ({ onOpenSettings, onExpand, onPopOut }: TimerMiniCardProps) => {
   const { timer } = useAppServices();
   useTimerController();
   const timerState = useAppSelector((state) => state.timer.state);
@@ -177,10 +178,27 @@ export const TimerMiniCard = ({ onOpenSettings, onExpand }: TimerMiniCardProps) 
   return (
     <section className="w-72 rounded-2xl border border-subtle bg-surface-card p-5 shadow-elevated backdrop-blur-xl">
       <div className="flex items-center justify-between">
-        <div>
-          <p className="text-xs uppercase tracking-[0.3em] text-muted">Pomodoro</p>
-          <p className="text-3xl font-semibold text-primary">{formatTime(timerState.remainingMs)}</p>
-        </div>
+        {onPopOut ? (
+          <button
+            type="button"
+            onClick={onPopOut}
+            className="group flex flex-col rounded-xl border border-transparent px-2 py-1 text-left transition-transform duration-200 hover:-translate-y-0.5 hover:border-[color:var(--accent-ring)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--accent-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-[color:var(--surface-page)]"
+            aria-label="Open floating timer window"
+          >
+            <p className="text-xs uppercase tracking-[0.3em] text-muted">Pomodoro</p>
+            <p className="text-3xl font-semibold text-primary transition-transform group-hover:scale-105">
+              {formatTime(timerState.remainingMs)}
+            </p>
+            <span className="mt-1 text-[10px] font-medium uppercase tracking-[0.4em] text-[color:var(--accent-ring)] opacity-0 transition group-hover:opacity-100">
+              Pop out
+            </span>
+          </button>
+        ) : (
+          <div>
+            <p className="text-xs uppercase tracking-[0.3em] text-muted">Pomodoro</p>
+            <p className="text-3xl font-semibold text-primary">{formatTime(timerState.remainingMs)}</p>
+          </div>
+        )}
         <div className="flex items-center gap-2">
           {onOpenSettings ? (
             <button

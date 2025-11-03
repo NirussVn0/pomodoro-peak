@@ -46,11 +46,17 @@ export class TodoService {
       return;
     }
     const nextCompleted = !task.completed;
-    const nextSubtasks = task.subtasks.map((subtask) => ({ ...subtask, completed: nextCompleted }));
+    const timestamp = this.time.now();
+    const completedAt = nextCompleted ? timestamp : undefined;
+    const nextSubtasks = task.subtasks.map((subtask) => ({
+      ...subtask,
+      completed: nextCompleted,
+      completedAt,
+    }));
     this.store.dispatch({
       type: 'tasks/update',
       id,
-      update: { completed: nextCompleted, subtasks: nextSubtasks },
+      update: { completed: nextCompleted, completedAt, subtasks: nextSubtasks },
     });
     this.applyAutoSort();
     this.syncActiveTask();
@@ -96,10 +102,12 @@ export class TodoService {
     if (!subtask) {
       return;
     }
+    const timestamp = this.time.now();
+    const toggled = !subtask.completed;
     this.store.dispatch({
       type: 'tasks/update-subtask',
       taskId,
-      subtask: { ...subtask, completed: !subtask.completed },
+      subtask: { ...subtask, completed: toggled, completedAt: toggled ? timestamp : undefined },
     });
     this.syncActiveTask();
   }

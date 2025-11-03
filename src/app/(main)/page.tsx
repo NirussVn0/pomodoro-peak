@@ -3,10 +3,10 @@
 import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
 import { clsx } from "clsx";
 import type { IconType } from "react-icons";
-import { FiColumns, FiMaximize2, FiMinimize2, FiMenu } from "react-icons/fi";
+import { FiColumns, FiMaximize2, FiMinimize2, FiMenu, FiMoreHorizontal } from "react-icons/fi";
 import type { TimerViewMode } from "../../domain/value-objects/settings";
 import { Sidebar } from "../../ui/components/sidebar";
-import { TimerCard } from "../../ui/components/timer-card";
+import { TimerCard, TimerMiniCard } from "../../ui/components/timer-card";
 import { TodoCard } from "../../ui/components/todo-card";
 import { StatsMini } from "../../ui/components/stats-mini";
 import { ThemeToggle } from "../../ui/components/theme-toggle";
@@ -14,6 +14,8 @@ import { SettingsDialog } from "../../ui/components/settings-dialog";
 import { PresenceIndicator } from "../../ui/components/presence-indicator";
 import { useKeyboardShortcuts } from "../../ui/hooks/use-keyboard-shortcuts";
 import { useAppServices, useAppSelector } from "../../ui/context/app-context";
+import { MaximalTimer } from "../../ui/components/maximal-timer";
+import { MaximalSidebar } from "../../ui/components/maximal-sidebar";
 
 const layoutOptions: { value: TimerViewMode; icon: IconType; label: string }[] = [
   { value: "split", icon: FiColumns, label: "Split view" },
@@ -24,17 +26,34 @@ const layoutOptions: { value: TimerViewMode; icon: IconType; label: string }[] =
 export default function HomePage() {
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const inputRef = useRef<HTMLInputElement | null>(null);
+  const [maximalSidebarOpen, setMaximalSidebarOpen] = useState(false);
+  const taskInputRef = useRef<HTMLInputElement | null>(null);
+  const maximalTaskInputRef = useRef<HTMLInputElement | null>(null);
   const miniWindowRef = useRef<Window | null>(null);
   const { templates, settings } = useAppServices();
   const layoutMode = useAppSelector((state) => state.settings.layout.timerView);
   const isMaximal = layoutMode === "maximal";
 
+  const handleShortcutOpenSettings = useCallback(() => {
+    if (layoutMode === "maximal") {
+      setMaximalSidebarOpen((prev) => !prev);
+    } else {
+      setSettingsOpen(true);
+    }
+  }, [layoutMode]);
+
+  const handleShortcutNewTask = useCallback(() => {
+    if (layoutMode === "maximal") {
+      setMaximalSidebarOpen(true);
+      setTimeout(() => maximalTaskInputRef.current?.focus(), 120);
+    } else {
+      taskInputRef.current?.focus();
+    }
+  }, [layoutMode]);
+
   useKeyboardShortcuts({
-    onOpenSettings: () => setSettingsOpen(true),
-    onNewTask: () => {
-      inputRef.current?.focus();
-    },
+    onOpenSettings: handleShortcutOpenSettings,
+    onNewTask: handleShortcutNewTask,
   });
 
   const handleCreateTemplate = () => {
@@ -53,7 +72,7 @@ export default function HomePage() {
       miniWindowRef.current = window.open(
         "/mini",
         "pomodoro-mini",
-        "width=420,height=520,menubar=no,toolbar=no,location=no,status=no",
+        "width=420,height=520,menubar=no,toolbar=no,location=no,status=no,alwaysOnTop=yes,alwaysRaised=yes,popup=yes",
       );
     }
     miniWindowRef.current?.focus();
@@ -68,14 +87,12 @@ export default function HomePage() {
 
   const handleLayoutChange = useCallback(
     (mode: TimerViewMode) => {
-      if (mode === "mini") {
-        openMiniWindow();
-      } else {
+      if (mode !== "mini") {
         closeMiniWindow();
       }
       settings.updateSettings({ layout: { timerView: mode } });
     },
-    [closeMiniWindow, openMiniWindow, settings],
+    [closeMiniWindow, settings],
   );
 
   useEffect(() => {
@@ -86,6 +103,12 @@ export default function HomePage() {
       closeMiniWindow();
     };
   }, [closeMiniWindow, layoutMode]);
+
+  useEffect(() => {
+    if (layoutMode !== "maximal") {
+      setMaximalSidebarOpen(false);
+    }
+  }, [layoutMode]);
 
   useEffect(() => {
     if (typeof window === "undefined") {
@@ -111,53 +134,58 @@ export default function HomePage() {
     return () => window.removeEventListener("message", handleMessage);
   }, [handleLayoutChange]);
 
-  let content: ReactNode;
-
   if (layoutMode === "maximal") {
-    content = (
-      <div className="relative flex flex-1 flex-col overflow-hidden">
-        <div className="group flex h-full flex-1 items-center justify-center">
-          <TimerCard onOpenSettings={() => setSettingsOpen(true)} variant="maximal" />
-          <div className="pointer-events-none absolute inset-0 opacity-0 transition duration-200 group-hover:pointer-events-auto group-hover:opacity-100">
-            <div className="pointer-events-auto absolute left-4 top-4 z-10 flex flex-col gap-4">
-              <button
-                type="button"
-                onClick={() => setSidebarOpen((prev) => !prev)}
-                className="flex h-10 w-10 items-center justify-center rounded-full border border-white/20 bg-white/10 text-white shadow-lg transition hover:bg-white/20"
-                aria-label="Toggle navigation"
-              >
-                <FiMenu className="h-5 w-5" />
-              </button>
-              <div className="rounded-3xl border border-white/10 bg-white/10 p-4">
-                <StatsMini />
-              </div>
-            </div>
-            <div className="pointer-events-auto absolute right-4 top-1/2 h-[70%] w-[420px] -translate-y-1/2 rounded-3xl border border-white/10 bg-white/10 p-4">
-              <TodoCard onCreateTemplate={handleCreateTemplate} inputRef={inputRef} />
-            </div>
-          </div>
+    return (
+      <div className="relative flex min-h-screen flex-col bg-[color:var(--surface-page)] text-primary transition-colors">
+        <MaximalSidebar
+          open={maximalSidebarOpen}
+          onClose={() => setMaximalSidebarOpen(false)}
+          onOpenSettingsDialog={() => setSettingsOpen(true)}
+          taskInputRef={maximalTaskInputRef}
+        />
+        <button
+          type="button"
+          onClick={() => setMaximalSidebarOpen(true)}
+          className="fixed right-6 top-6 z-40 flex h-12 w-12 items-center justify-center rounded-full border border-[color:var(--border-subtle)] bg-[color:var(--surface-card)] text-primary shadow-elevated transition hover:border-[color:var(--accent-ring)] hover:text-primary/80"
+          aria-label="Open quick settings"
+        >
+          <FiMoreHorizontal className="h-5 w-5" />
+        </button>
+        <div className="flex flex-1 items-center justify-center px-6 py-10">
+          <MaximalTimer />
         </div>
+        <SettingsDialog open={settingsOpen} onClose={() => setSettingsOpen(false)} />
       </div>
     );
-  } else if (layoutMode === "mini") {
+  }
+
+  let content: ReactNode;
+
+  if (layoutMode === "mini") {
     content = (
       <div className="flex flex-1 flex-col gap-6">
-        <div className="rounded-3xl border border-white/10 bg-white/10 p-6 shadow-lg">
-          <h3 className="text-lg font-semibold text-white">Mini timer mode</h3>
-          <p className="mt-2 text-sm text-slate-300">
-            The timer is running in a separate mini window. Keep this page open for tasks and stats. If the window
-            closed, you can relaunch it below.
+        <div className="rounded-3xl border border-[color:var(--border-subtle)] bg-[color:var(--surface-card)] p-6 shadow-elevated">
+          <h3 className="text-lg font-semibold text-primary">Mini timer mode</h3>
+          <p className="mt-2 text-sm text-muted">
+            Tap the clock to pop it out into a floating window. The timer stays in sync while you manage tasks here.
           </p>
-          <button
-            type="button"
-            onClick={openMiniWindow}
-            className="mt-4 inline-flex items-center justify-center rounded-full bg-[color:var(--accent-solid)] px-4 py-2 text-sm font-medium text-[color:var(--text-inverse)] shadow-[0_10px_24px_rgba(78,207,255,0.35)] transition hover:bg-[color:var(--accent-solid-hover)]"
-          >
-            Reopen mini timer
-          </button>
+          <div className="mt-6 flex flex-wrap items-center justify-between gap-6">
+            <TimerMiniCard
+              onOpenSettings={() => setSettingsOpen(true)}
+              onPopOut={openMiniWindow}
+              onExpand={(mode) => handleLayoutChange(mode)}
+            />
+            <button
+              type="button"
+              onClick={openMiniWindow}
+              className="inline-flex items-center justify-center rounded-full bg-[color:var(--accent-solid)] px-4 py-2 text-sm font-medium text-[color:var(--text-inverse)] shadow-[0_10px_24px_rgba(124,58,237,0.35)] transition hover:bg-[color:var(--accent-solid-hover)]"
+            >
+              Reopen floating timer
+            </button>
+          </div>
         </div>
         <div className="grid gap-6 xl:grid-cols-2">
-          <TodoCard onCreateTemplate={handleCreateTemplate} inputRef={inputRef} />
+          <TodoCard onCreateTemplate={handleCreateTemplate} inputRef={taskInputRef} />
           <StatsMini />
         </div>
       </div>
@@ -167,7 +195,7 @@ export default function HomePage() {
       <div className="grid flex-1 gap-6 xl:grid-cols-2">
         <TimerCard onOpenSettings={() => setSettingsOpen(true)} />
         <div className="flex flex-col gap-6">
-          <TodoCard onCreateTemplate={handleCreateTemplate} inputRef={inputRef} />
+          <TodoCard onCreateTemplate={handleCreateTemplate} inputRef={taskInputRef} />
           <StatsMini />
         </div>
       </div>

@@ -54,6 +54,16 @@ body {
   transition: background-color 200ms ease, color 200ms ease;
 }
 
+@keyframes softPulse {
+  0%,
+  100% {
+    box-shadow: 0 20px 60px rgba(15, 23, 42, 0.12);
+  }
+  50% {
+    box-shadow: 0 28px 90px var(--accent-ring);
+  }
+}
+
 @layer utilities {
   .bg-surface-card {
     background-color: var(--surface-card);
@@ -89,5 +99,9 @@ body {
 
   .shadow-elevated {
     box-shadow: var(--shadow-elevated);
+  }
+
+  .animate-soft-pulse {
+    animation: softPulse 4s ease-in-out infinite;
   }
 }

@@ -12,7 +12,7 @@ import {
 } from '../../domain/entities/timer';
 import type { Task, SubTask, TaskTemplate } from '../../domain/entities/task';
 import { DEFAULT_TEMPLATES, createEmptyTask, createSubtask } from '../../domain/entities/task';
-import type { AppSettings } from '../../domain/value-objects/settings';
+import type { AppSettings, SettingsUpdate } from '../../domain/value-objects/settings';
 import { DEFAULT_APP_SETTINGS } from '../../domain/value-objects/settings';
 import type { BackgroundSettings } from '../../domain/value-objects/background';
 import { TimerAggregate } from '../../domain/aggregates/timer-aggregate';
@@ -75,7 +75,7 @@ export type AppAction =
       readonly taskId: string;
       readonly subtasks: readonly SubTask[];
     }
-  | { readonly type: 'settings/update'; readonly settings: Partial<AppSettings> }
+  | { readonly type: 'settings/update'; readonly settings: SettingsUpdate }
   | { readonly type: 'settings/update-background'; readonly background: BackgroundSettings }
   | { readonly type: 'templates/upsert'; readonly template: TaskTemplate }
   | { readonly type: 'templates/remove'; readonly id: string };

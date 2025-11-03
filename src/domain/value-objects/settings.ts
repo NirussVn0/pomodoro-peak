@@ -16,6 +16,7 @@ export type TimerViewMode = 'split' | 'maximal' | 'mini';
 
 export interface LayoutSettings {
   readonly timerView: TimerViewMode;
+  readonly maximalClockScale: number;
 }
 
 export interface TaskSettings {
@@ -54,6 +55,7 @@ export const DEFAULT_TASK_SETTINGS: TaskSettings = {
 
 export const DEFAULT_LAYOUT_SETTINGS: LayoutSettings = {
   timerView: 'split',
+  maximalClockScale: 1,
 };
 
 export const DEFAULT_APP_SETTINGS: AppSettings = {
@@ -68,4 +70,9 @@ export const DEFAULT_APP_SETTINGS: AppSettings = {
   shortcuts: DEFAULT_SHORTCUT_CONFIG,
   tasks: DEFAULT_TASK_SETTINGS,
   layout: DEFAULT_LAYOUT_SETTINGS,
+};
+
+export type SettingsUpdate = Partial<Omit<AppSettings, 'tasks' | 'layout'>> & {
+  readonly tasks?: Partial<TaskSettings>;
+  readonly layout?: Partial<LayoutSettings>;
 };

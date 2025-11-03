@@ -2,6 +2,7 @@ export interface SubTask {
   readonly id: string;
   readonly title: string;
   readonly completed: boolean;
+  readonly completedAt?: number;
 }
 
 export interface TaskTag {
@@ -13,6 +14,7 @@ export interface Task {
   readonly id: string;
   readonly title: string;
   readonly completed: boolean;
+  readonly completedAt?: number;
   readonly subtasks: readonly SubTask[];
   readonly tags: readonly TaskTag[];
   readonly createdAt: number;
@@ -41,6 +43,7 @@ export const createEmptyTask = (params: {
   id: params.id,
   title: params.title,
   completed: false,
+  completedAt: undefined,
   subtasks: [],
   tags: [],
   createdAt: params.timestamp,
@@ -51,6 +54,7 @@ export const createSubtask = (params: { id: string; title: string }): SubTask =>
   id: params.id,
   title: params.title,
   completed: false,
+  completedAt: undefined,
 });
 
 export const DEFAULT_TEMPLATES: readonly TaskTemplate[] = [
